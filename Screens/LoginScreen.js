@@ -22,6 +22,18 @@ const LoginScreen = ({navigation}) => {
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
   const [formData, setFormData] = useState(initialFormData);
   const [isShowPassword, setIsShowPassword] = useState(false);
+  const [isFocusEmailInput, setIsFocusEmailInput] = useState(false);
+  const [isFocusPasswordInput, setIsFocusPasswordInput] = useState(false);
+
+  const onFocusEmailInput = () => {
+    setIsShowKeyboard(true);
+    setIsFocusEmailInput(true);
+  };
+
+  const onFocusPasswordInput = () => {
+    setIsShowKeyboard(true);
+    setIsFocusPasswordInput(true);
+  };
 
   const keyboardHide = () => {
     Keyboard.dismiss();
@@ -39,6 +51,7 @@ const LoginScreen = ({navigation}) => {
   const onFormSubmit = () => {
     console.log(formData);
     setFormData(initialFormData);
+    navigation.navigate("Posts");
   };
 
   const detectPositionBtnTitle = () => {
@@ -46,10 +59,10 @@ const LoginScreen = ({navigation}) => {
     return screenWidth / 2 - 24 - 23;
   };
 
-  const detectPositionPhotoProfile = () => {
-    const screenWidth = Dimensions.get("window").width;
-    return screenWidth / 2 - 60;
-  };
+  // const detectPositionPhotoProfile = () => {
+  //   const screenWidth = Dimensions.get("window").width;
+  //   return screenWidth / 2 - 60;
+  // };
 
   const onShowPassword = () => {
     setIsShowPassword((prev) => !prev);
@@ -75,24 +88,36 @@ const LoginScreen = ({navigation}) => {
 
               <View style={styles.inputWrap}>
                 <TextInput
-                  style={styles.input}
+                  style={{
+                    ...styles.input,
+                    borderColor: isFocusEmailInput ? "#FF6C00" : "#E8E8E8",
+                    backgroundColor: isFocusEmailInput ? "#FFFFFF" : "#F6F6F6",
+                  }}
                   value={formData.email}
                   placeholder="Адрес электронной почты"
                   placeholderTextColor="#BDBDBD"
                   inputMode={"email"}
-                  onFocus={() => setIsShowKeyboard(true)}
+                  onFocus={onFocusEmailInput}
+                  onBlur={() => setIsFocusEmailInput(false)}
                   onChangeText={onHandleInputEmail}
                 />
               </View>
 
               <View style={styles.inputWrap}>
                 <TextInput
-                  style={styles.input}
+                  style={{
+                    ...styles.input,
+                    borderColor: isFocusPasswordInput ? "#FF6C00" : "#E8E8E8",
+                    backgroundColor: isFocusPasswordInput
+                      ? "#FFFFFF"
+                      : "#F6F6F6",
+                  }}
                   value={formData.password}
                   placeholder="Пароль"
                   placeholderTextColor="#BDBDBD"
                   secureTextEntry={isShowPassword ? false : true}
-                  onFocus={() => setIsShowKeyboard(true)}
+                  onFocus={onFocusPasswordInput}
+                  onBlur={() => setIsFocusPasswordInput(false)}
                   onChangeText={onHandleInputPassword}
                 />
                 <Text style={styles.showPasswordText} onPress={onShowPassword}>
@@ -105,11 +130,7 @@ const LoginScreen = ({navigation}) => {
                 style={styles.btn}
                 onPress={onFormSubmit}
               >
-                <Text
-                  style={{ ...styles.btnTitle, left: detectPositionBtnTitle() }}
-                >
-                  Войти
-                </Text>
+                <Text style={styles.btnTitle}>Войти</Text>
               </TouchableOpacity>
 
               <View
@@ -175,7 +196,6 @@ const styles = StyleSheet.create({
   },
 
   input: {
-    backgroundColor: "#F6F6F6",
     borderWidth: 1,
     borderColor: "#E8E8E8",
     height: 50,
@@ -200,18 +220,16 @@ const styles = StyleSheet.create({
   },
 
   btn: {
-    position: "relative",
     height: 51,
     backgroundColor: "#FF6C00",
     borderRadius: 100,
     marginTop: 27,
     marginBottom: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
   btnTitle: {
-    position: "absolute",
-    top: 16,
-
     fontFamily: "Roboto-Regular-400",
     fontSize: 16,
     lineHeight: 19,

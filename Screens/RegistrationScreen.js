@@ -24,6 +24,9 @@ const RegistrationScreen = ({ navigation }) => {
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
   const [formData, setFormData] = useState(initialFormData);
   const [isShowPassword, setIsShowPassword] = useState(false);
+  const [isFocusLoginInput, setIsFocusLoginInput] = useState(false);
+  const [isFocusEmailInput, setIsFocusEmailInput] = useState(false);
+  const [isFocusPasswordInput, setIsFocusPasswordInput] = useState(false);
 
   const keyboardHide = () => {
     Keyboard.dismiss();
@@ -45,11 +48,7 @@ const RegistrationScreen = ({ navigation }) => {
   const onFormSubmit = () => {
     console.log(formData);
     setFormData(initialFormData);
-  };
-
-  const detectPositionBtnTitle = () => {
-    const screenWidth = Dimensions.get("window").width;
-    return screenWidth / 2 - 24 - 78;
+    navigation.navigate("Posts");
   };
 
   const detectPositionPhotoProfile = () => {
@@ -59,6 +58,21 @@ const RegistrationScreen = ({ navigation }) => {
 
   const onShowPassword = () => {
     setIsShowPassword((prev) => !prev);
+  };
+
+  const onFocusLoginInput = () => {
+    setIsShowKeyboard(true);
+    setIsFocusLoginInput(true);
+  }
+
+  const onFocusEmailInput = () => {
+    setIsShowKeyboard(true);
+    setIsFocusEmailInput(true);
+  };
+
+  const onFocusPasswordInput = () => {
+    setIsShowKeyboard(true);
+    setIsFocusPasswordInput(true);
   };
 
   return (
@@ -89,35 +103,50 @@ const RegistrationScreen = ({ navigation }) => {
 
               <View style={styles.inputWrap}>
                 <TextInput
-                  style={styles.input}
+                  style={{
+                    ...styles.input,
+                    borderColor: isFocusLoginInput ? "#FF6C00" : "#E8E8E8",
+                    backgroundColor: isFocusLoginInput ? "#FFFFFF" : "#F6F6F6",
+                  }}
                   value={formData.login}
                   placeholder="Логин"
                   placeholderTextColor="#BDBDBD"
-                  onFocus={() => setIsShowKeyboard(true)}
+                  onFocus={onFocusLoginInput}
+                  onBlur={() => setIsFocusLoginInput(false)}
                   onChangeText={onHandleInputLogin}
                 />
               </View>
 
               <View style={styles.inputWrap}>
                 <TextInput
-                  style={styles.input}
+                  style={{
+                    ...styles.input,
+                    borderColor: isFocusEmailInput ? "#FF6C00" : "#E8E8E8",
+                    backgroundColor: isFocusEmailInput ? "#FFFFFF" : "#F6F6F6",
+                  }}
                   value={formData.email}
                   placeholder="Адрес электронной почты"
                   placeholderTextColor="#BDBDBD"
                   inputMode={"email"}
-                  onFocus={() => setIsShowKeyboard(true)}
+                  onFocus={onFocusEmailInput}
+                  onBlur={() => setIsFocusEmailInput(false)}
                   onChangeText={onHandleInputEmail}
                 />
               </View>
 
               <View style={styles.inputWrap}>
                 <TextInput
-                  style={styles.input}
+                  style={{
+                    ...styles.input,
+                    borderColor: isFocusPasswordInput ? "#FF6C00" : "#E8E8E8",
+                    backgroundColor: isFocusPasswordInput ? "#FFFFFF" : "#F6F6F6",
+                  }}
                   value={formData.password}
                   placeholder="Пароль"
                   placeholderTextColor="#BDBDBD"
                   secureTextEntry={isShowPassword ? false : true}
-                  onFocus={() => setIsShowKeyboard(true)}
+                  onFocus={onFocusPasswordInput}
+                  onBlur={() => setIsFocusPasswordInput(false)}
                   onChangeText={onHandleInputPassword}
                 />
                 <Text style={styles.showPasswordText} onPress={onShowPassword}>
@@ -130,11 +159,7 @@ const RegistrationScreen = ({ navigation }) => {
                 style={styles.btn}
                 onPress={onFormSubmit}
               >
-                <Text
-                  style={{ ...styles.btnTitle, left: detectPositionBtnTitle() }}
-                >
-                  Зарегистрироваться
-                </Text>
+                <Text style={styles.btnTitle}>Зарегистрироваться</Text>
               </TouchableOpacity>
 
               <View
@@ -218,9 +243,7 @@ const styles = StyleSheet.create({
   },
 
   input: {
-    backgroundColor: "#F6F6F6",
     borderWidth: 1,
-    borderColor: "#E8E8E8",
     height: 50,
     borderRadius: 8,
     paddingLeft: 16,
@@ -243,19 +266,16 @@ const styles = StyleSheet.create({
   },
 
   btn: {
-    position: "relative",
     height: 51,
     backgroundColor: "#FF6C00",
     borderRadius: 100,
     marginTop: 27,
     marginBottom: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
   btnTitle: {
-    position: "absolute",
-    top: 16,
-    // left: 93,
-
     fontFamily: "Roboto-Regular-400",
     fontSize: 16,
     lineHeight: 19,
