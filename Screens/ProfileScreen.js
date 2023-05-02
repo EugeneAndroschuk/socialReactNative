@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
 
-  photoText: {
+  photoTitle: {
     fontFamily: "Roboto-Medium-500",
     fontSize: 16,
     lineHeight: 19,

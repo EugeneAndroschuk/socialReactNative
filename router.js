@@ -7,6 +7,7 @@ import LoginScreen from "./Screens/LoginScreen";
 import CreatePostsScreen from "./Screens/CreatePostsScreen";
 import ProfileScreen from "./Screens/ProfileScreen";
 import CommentsScreen from "./Screens/CommentsScreen";
+import MapScreen from "./Screens/MapScreen";
 import SvgGrid from "./assets/images/Svg/SvgGrid";
 import SvgPlus from "./assets/images/Svg/SvgPlus";
 import SvgUser from "./assets/images/Svg/SvgUser";
@@ -76,6 +77,13 @@ const useRoute = (isAuth) => {
         }}
         name="Comments"
         component={CommentsScreen}
+      />
+      <MainStack.Screen
+        options={{
+          headerShown: false,
+        }}
+        name="Map"
+        component={MapScreen}
       />
     </MainStack.Navigator>
   );

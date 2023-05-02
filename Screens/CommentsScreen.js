@@ -7,36 +7,13 @@ import {
   TouchableOpacity,
   Dimensions,
 } from "react-native";
-import { Camera, CameraType } from "expo-camera";
 import { useState, useEffect } from "react";
 
 import SvgArrowLeft from "../assets/images/Svg/SvgArrowLeft";
-import SvgTrash from "../assets/images/Svg/SvgTrash";
-import SvgMapPin from "../assets/images/Svg/SvgMapPin";
-import SvgCamera from "../assets/images/Svg/SvgCamera";
 import SvgArrowUp from "../assets/images/Svg/SvgArrowUp";
 
 const CommentsScreen = ({ navigation }) => {
-  const [photos, setPhotos] = useState(null);
-  const [hasPermission, setHasPermission] = useState(null);
-  const [cameraRef, setCameraRef] = useState(null);
   const [formData, setFormData] = useState({});
-
-  useEffect(() => {
-    async function request() {
-      const answer = await Camera.requestCameraPermissionsAsync();
-      setHasPermission(answer.status === "granted");
-    }
-    request();
-  }, []);
-
-  if (hasPermission === null) return <View />;
-  if (hasPermission === false) return <Text>No access to camera</Text>;
-
-  const takePhoto = async () => {
-    const photo = await cameraRef.takePictureAsync();
-    setPhotos(photo.uri);
-  };
 
   return (
     <View style={styles.container}>

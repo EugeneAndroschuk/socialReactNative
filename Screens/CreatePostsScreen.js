@@ -5,7 +5,10 @@ import {
   TextInput,
   TouchableOpacity,
   Dimensions,
+  Keyboard,
+  TouchableWithoutFeedback,
 } from "react-native";
+import * as Location from "expo-location";
 import { Camera, CameraType } from "expo-camera";
 import { useState, useEffect } from "react";
 
@@ -15,10 +18,12 @@ import SvgMapPin from "../assets/images/Svg/SvgMapPin";
 import SvgCamera from "../assets/images/Svg/SvgCamera";
 
 const CreatePostsScreen = ({navigation}) => {
-  const [photos, setPhotos] = useState(null);
+  const [currentPhoto, setCurrentPhoto] = useState(null);
   const [hasPermission, setHasPermission] = useState(null);
   const [cameraRef, setCameraRef] = useState(null);
   const [formData, setFormData] = useState({});
+  const [location, setLocation] = useState(null);
+  const [isShowKeyboard, setIsShowKeyboard] = useState(false);
 
   useEffect(() => {
     async function request() {
@@ -33,67 +38,120 @@ const CreatePostsScreen = ({navigation}) => {
 
   const takePhoto = async () => {
     const photo = await cameraRef.takePictureAsync();
-    setPhotos(photo.uri);
+    setCurrentPhoto(photo.uri);
+  }
+
+  const keyboardHide = () => {
+    Keyboard.dismiss();
+    setIsShowKeyboard(false);
+  };
+
+  const onHandleInputPhotoTitle = (value) => {
+    setFormData((prev) => ({ ...prev, photoTitle: value }));
+  };
+
+  const onHandleInputPhotoLocation = (value) => {
+    setFormData((prev) => ({ ...prev, photoLocation: value }));
+  };
+
+  const onPressPublicate = () => {
+    // Определяем геолокацию поста
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        setErrorMsg("Permission to access location was denied");
+        return;
+      }
+
+      const location = await Location.getCurrentPositionAsync({});
+      const coords = {
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      };
+      setLocation(coords);
+
+      // отправляем данные
+      navigation.navigate("Posts", { currentPhoto, formData, coords });
+      console.log({ currentPhoto, formData, coords });
+    })();
+    // отправляем данные
+    // navigation.navigate("Posts", { currentPhoto, formData, coords});
+    // console.log({ currentPhoto, formData, coords});
+
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.title}>
-        <Text style={styles.titleText}>Создать публикацию</Text>
-        <TouchableOpacity
-          style={styles.svgArrowLeft}
-          onPress={() => navigation.navigate("Posts")}
-        >
-          <SvgArrowLeft />
-        </TouchableOpacity>
-      </View>
+    <TouchableWithoutFeedback onPress={keyboardHide}>
+      <View style={styles.container}>
+        <View style={styles.title}>
+          <Text style={styles.titleText}>Создать публикацию</Text>
+          <TouchableOpacity
+            style={styles.svgArrowLeft}
+            onPress={() => navigation.navigate("Posts")}
+          >
+            <SvgArrowLeft />
+          </TouchableOpacity>
+        </View>
 
-      <View style={styles.form}>
-        <Camera style={styles.photo} ref={(ref) => setCameraRef(ref)}>
+        <View style={styles.form}>
+          <Camera style={styles.photo} ref={(ref) => setCameraRef(ref)}>
+            <TouchableOpacity
+              activeOpacity={0.9}
+              style={styles.cameraWrap}
+              onPress={takePhoto}
+            >
+              <SvgCamera style={styles.camera} />
+            </TouchableOpacity>
+          </Camera>
+
+          <Text style={styles.photoUploadText}>Загрузите фото</Text>
+
+          <TextInput
+            style={styles.input}
+            value={formData.photoTitle}
+            placeholder="Название..."
+            placeholderTextColor="rgba(189, 189, 189, 1)"
+            onFocus={() => setIsShowKeyboard(true)}
+            onBlur={() => setIsShowKeyboard(false)}
+            onChangeText={onHandleInputPhotoTitle}
+          />
+
+          <TextInput
+            style={styles.input}
+            value={formData.photoLocation}
+            placeholder="Местность..."
+            placeholderTextColor="rgba(189, 189, 189, 1)"
+            onFocus={() => setIsShowKeyboard(true)}
+            onBlur={() => setIsShowKeyboard(false)}
+            onChangeText={onHandleInputPhotoLocation}
+          />
+          <SvgMapPin />
+
           <TouchableOpacity
             activeOpacity={0.9}
-            style={styles.cameraWrap}
-            onPress={takePhoto}
+            style={styles.btnPublicate}
+            onPress={onPressPublicate}
           >
-            <SvgCamera style={styles.camera} />
+            <Text style={styles.btnPublicateText}>Опубликовать</Text>
           </TouchableOpacity>
-        </Camera>
+        </View>
 
-        <Text style={styles.photoUploadText}>Загрузите фото</Text>
+        <Text
+          style={{ marginTop: 50, marginLeft: 150 }}
+          onPress={() => navigation.navigate("Map")}
+        >
+          MAP
+        </Text>
 
-        <TextInput
-          style={styles.input}
-          value={formData.photoTitle}
-          placeholder="Название..."
-          placeholderTextColor="rgba(189, 189, 189, 1)"
-          onChangeText={() =>
-            setFormData((prev) => ({ ...prev, photoTitle: value }))
-          }
-        />
-
-        <TextInput
-          style={styles.input}
-          value={formData.photoLocation}
-          placeholder="Местность..."
-          placeholderTextColor="rgba(189, 189, 189, 1)"
-          onChangeText={() =>
-            setFormData((prev) => ({ ...prev, photoLocation: value }))
-          }
-        />
-        <SvgMapPin />
-
-        
-        <TouchableOpacity activeOpacity={0.9} style={styles.btnPublicate}>
-          <Text style={styles.btnPublicateText}>Опубликовать</Text>
-        </TouchableOpacity>
+        <View
+          style={{ ...styles.tabBar, width: Dimensions.get("window").width }}
+        >
+          <TouchableOpacity activeOpacity={0.9} style={styles.btn}>
+            <SvgTrash />
+          </TouchableOpacity>
+        </View>
       </View>
-
-      <View style={{ ...styles.tabBar, width: Dimensions.get("window").width }}>
-        <TouchableOpacity activeOpacity={0.9} style={styles.btn}>
-          <SvgTrash />
-        </TouchableOpacity>
-      </View>
-    </View>
+    </TouchableWithoutFeedback>
   );
 };
 
