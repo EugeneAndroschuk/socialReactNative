@@ -7,6 +7,7 @@ import {
   Dimensions,
   Keyboard,
   TouchableWithoutFeedback,
+  Image,
 } from "react-native";
 import * as Location from "expo-location";
 import { Camera, CameraType } from "expo-camera";
@@ -19,6 +20,7 @@ import SvgCamera from "../assets/images/Svg/SvgCamera";
 
 const CreatePostsScreen = ({navigation}) => {
   const [currentPhoto, setCurrentPhoto] = useState(null);
+  const [isPhoto, setIsPhoto] = useState(false);
   const [hasPermission, setHasPermission] = useState(null);
   const [cameraRef, setCameraRef] = useState(null);
   const [formData, setFormData] = useState({});
@@ -37,8 +39,17 @@ const CreatePostsScreen = ({navigation}) => {
   if (hasPermission === false) return <Text>No access to camera</Text>;
 
   const takePhoto = async () => {
+    console.log('нажал на камеру');
     const photo = await cameraRef.takePictureAsync();
     setCurrentPhoto(photo.uri);
+    setIsPhoto(true);
+  }
+
+  const onPressEditPhoto = () => {
+    if (isPhoto) {
+      setIsPhoto(false);
+      setCurrentPhoto(null);
+}
   }
 
   const keyboardHide = () => {
@@ -72,7 +83,7 @@ const CreatePostsScreen = ({navigation}) => {
 
       // отправляем данные
       navigation.navigate("Posts", { currentPhoto, formData, coords });
-      console.log({ currentPhoto, formData, coords });
+      // console.log({ currentPhoto, formData, coords });
     })();
     // отправляем данные
     // navigation.navigate("Posts", { currentPhoto, formData, coords});
@@ -95,6 +106,10 @@ const CreatePostsScreen = ({navigation}) => {
 
         <View style={styles.form}>
           <Camera style={styles.photo} ref={(ref) => setCameraRef(ref)}>
+            <Image
+              source={{ uri: currentPhoto }}
+              style={{ width: 100, height: 240 }}
+            />
             <TouchableOpacity
               activeOpacity={0.9}
               style={styles.cameraWrap}
@@ -104,7 +119,9 @@ const CreatePostsScreen = ({navigation}) => {
             </TouchableOpacity>
           </Camera>
 
-          <Text style={styles.photoUploadText}>Загрузите фото</Text>
+          <Text style={styles.photoUploadText} onPress={onPressEditPhoto}>
+            {isPhoto ? "Редактировать фото" : "Загрузите фото"}
+          </Text>
 
           <TextInput
             style={styles.input}
@@ -116,32 +133,37 @@ const CreatePostsScreen = ({navigation}) => {
             onChangeText={onHandleInputPhotoTitle}
           />
 
-          <TextInput
-            style={styles.input}
-            value={formData.photoLocation}
-            placeholder="Местность..."
-            placeholderTextColor="rgba(189, 189, 189, 1)"
-            onFocus={() => setIsShowKeyboard(true)}
-            onBlur={() => setIsShowKeyboard(false)}
-            onChangeText={onHandleInputPhotoLocation}
-          />
-          <SvgMapPin />
+          <View>
+            <TextInput
+              style={{ ...styles.input, paddingLeft: 28 }}
+              value={formData.photoLocation}
+              placeholder="Местность..."
+              placeholderTextColor="rgba(189, 189, 189, 1)"
+              onFocus={() => setIsShowKeyboard(true)}
+              onBlur={() => setIsShowKeyboard(false)}
+              onChangeText={onHandleInputPhotoLocation}
+            />
+            <SvgMapPin style={styles.svgMapPin} />
+          </View>
 
           <TouchableOpacity
             activeOpacity={0.9}
-            style={styles.btnPublicate}
+            style={{
+              ...styles.btnPublicate,
+              backgroundColor: isPhoto ? "#FF6C00" : "#F6F6F6",
+            }}
             onPress={onPressPublicate}
           >
-            <Text style={styles.btnPublicateText}>Опубликовать</Text>
+            <Text
+              style={{
+                ...styles.btnPublicateText,
+                color: isPhoto ? "#FFFFFF" : "#BDBDBD",
+              }}
+            >
+              Опубликовать
+            </Text>
           </TouchableOpacity>
         </View>
-
-        <Text
-          style={{ marginTop: 50, marginLeft: 150 }}
-          onPress={() => navigation.navigate("Map")}
-        >
-          MAP
-        </Text>
 
         <View
           style={{ ...styles.tabBar, width: Dimensions.get("window").width }}
@@ -205,6 +227,10 @@ const styles = StyleSheet.create({
   },
 
   cameraWrap: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    zIndex: 999,
     width: 60,
     height: 60,
     justifyContent: "center",
@@ -224,6 +250,12 @@ const styles = StyleSheet.create({
     borderBottomColor: "rgba(189, 189, 189, 1)",
     borderBottomWidth: 1,
     borderStyle: "solid",
+  },
+
+  svgMapPin: {
+    position: 'absolute',
+    left: 0,
+    top: 14,
   },
 
   photoUploadText: {
@@ -256,7 +288,7 @@ const styles = StyleSheet.create({
 
   btnPublicate: {
     height: 51,
-    backgroundColor: "#F6F6F6",
+    // backgroundColor: "#F6F6F6",
     borderRadius: 100,
     alignItems: "center",
     justifyContent: "center",
@@ -267,7 +299,7 @@ const styles = StyleSheet.create({
     fontFamily: "Roboto-Regular-400",
     fontSize: 16,
     lineHeight: 19,
-    color: "rgba(189, 189, 189, 1)",
+    // color: "rgba(189, 189, 189, 1)",
   },
 
   tabBar: {

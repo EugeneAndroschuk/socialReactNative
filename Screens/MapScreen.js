@@ -10,26 +10,31 @@ import MapView, { Marker } from "react-native-maps";
 import * as Location from "expo-location";
 import SvgArrowLeft from "../assets/images/Svg/SvgArrowLeft";
 
-const MapScreen = ({ navigation }) => {
+const MapScreen = ({ navigation, route }) => {
     const [formData, setFormData] = useState({});
     const [location, setLocation] = useState(null);
 
     useEffect(() => {
-      (async () => {
-        let { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== "granted") {
-          setErrorMsg("Permission to access location was denied");
-          return;
-        }
+      if (route.params) setLocation(route.params.coords);
+      console.log(route.params.coords);
+    }, [route.params]);
 
-        const location = await Location.getCurrentPositionAsync({});
-        const coords = {
-          latitude: location.coords.latitude,
-          longitude: location.coords.longitude,
-        };
-        setLocation(coords);
-      })();
-    }, []);
+    // useEffect(() => {
+    //   (async () => {
+    //     let { status } = await Location.requestForegroundPermissionsAsync();
+    //     if (status !== "granted") {
+    //       setErrorMsg("Permission to access location was denied");
+    //       return;
+    //     }
+
+    //     const location = await Location.getCurrentPositionAsync({});
+    //     const coords = {
+    //       latitude: location.coords.latitude,
+    //       longitude: location.coords.longitude,
+    //     };
+    //     setLocation(coords);
+    //   })();
+    // }, []);
 
   return (
     <View style={styles.container}>

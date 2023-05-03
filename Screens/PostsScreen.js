@@ -21,6 +21,10 @@ const PostsScreen = ({ navigation, route }) => {
     
   }, [route.params]);
 
+  const sendCoords = (coords) => {
+    navigation.navigate("Map", { coords });
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.title}>
@@ -50,9 +54,7 @@ const PostsScreen = ({ navigation, route }) => {
                   style={styles.photo}
                 />
               </View>
-              <Text onPress={() => console.log(item.coords)} style={styles.photoTitle}>
-                {item.formData.photoTitle}
-              </Text>
+              <Text style={styles.photoTitle}>{item.formData.photoTitle}</Text>
 
               <View style={styles.data}>
                 <View style={styles.feedback}>
@@ -61,7 +63,10 @@ const PostsScreen = ({ navigation, route }) => {
                 </View>
 
                 <View style={styles.location}>
-                  <SvgMapPin style={{ marginRight: 8 }} />
+                  <SvgMapPin
+                    onPress={()=>sendCoords(item.coords)}
+                    style={{ marginRight: 8 }}
+                  />
                   <Text>{item.formData.photoLocation}</Text>
                 </View>
               </View>
