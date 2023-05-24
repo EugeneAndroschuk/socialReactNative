@@ -83,7 +83,7 @@ const LoginScreen = ({navigation}) => {
           <View style={styles.formWrap}>
             <View style={styles.form}>
               <View style={styles.formTitle}>
-                <Text style={styles.titleText}>Войти</Text>
+                <Text style={styles.titleText}>Увійти</Text>
               </View>
 
               <View style={styles.inputWrap}>
@@ -94,7 +94,7 @@ const LoginScreen = ({navigation}) => {
                     backgroundColor: isFocusEmailInput ? "#FFFFFF" : "#F6F6F6",
                   }}
                   value={formData.email}
-                  placeholder="Адрес электронной почты"
+                  placeholder="Адреса електронної пошти"
                   placeholderTextColor="#BDBDBD"
                   inputMode={"email"}
                   onFocus={onFocusEmailInput}
@@ -121,7 +121,7 @@ const LoginScreen = ({navigation}) => {
                   onChangeText={onHandleInputPassword}
                 />
                 <Text style={styles.showPasswordText} onPress={onShowPassword}>
-                  Показать
+                  Показати
                 </Text>
               </View>
 
@@ -130,7 +130,7 @@ const LoginScreen = ({navigation}) => {
                 style={styles.btn}
                 onPress={onFormSubmit}
               >
-                <Text style={styles.btnTitle}>Войти</Text>
+                <Text style={styles.btnTitle}>Увійти</Text>
               </TouchableOpacity>
 
               <View
@@ -143,7 +143,7 @@ const LoginScreen = ({navigation}) => {
                   style={styles.accauntEnterText}
                   onPress={() => navigation.navigate("Registration")}
                 >
-                  Нет аккаунта? Зарегистрироваться
+                  Немає акаунту? Зареєструватися
                 </Text>
               </View>
             </View>

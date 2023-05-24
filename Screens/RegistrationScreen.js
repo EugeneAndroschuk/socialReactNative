@@ -98,7 +98,7 @@ const RegistrationScreen = ({ navigation }) => {
             </View>
             <View style={styles.form}>
               <View style={styles.formTitle}>
-                <Text style={styles.titleText}>Регистрация</Text>
+                <Text style={styles.titleText}>Реєстрація</Text>
               </View>
 
               <View style={styles.inputWrap}>
@@ -109,7 +109,7 @@ const RegistrationScreen = ({ navigation }) => {
                     backgroundColor: isFocusLoginInput ? "#FFFFFF" : "#F6F6F6",
                   }}
                   value={formData.login}
-                  placeholder="Логин"
+                  placeholder="Логін"
                   placeholderTextColor="#BDBDBD"
                   onFocus={onFocusLoginInput}
                   onBlur={() => setIsFocusLoginInput(false)}
@@ -125,7 +125,7 @@ const RegistrationScreen = ({ navigation }) => {
                     backgroundColor: isFocusEmailInput ? "#FFFFFF" : "#F6F6F6",
                   }}
                   value={formData.email}
-                  placeholder="Адрес электронной почты"
+                  placeholder="Адреса електронної пошти"
                   placeholderTextColor="#BDBDBD"
                   inputMode={"email"}
                   onFocus={onFocusEmailInput}
@@ -150,7 +150,7 @@ const RegistrationScreen = ({ navigation }) => {
                   onChangeText={onHandleInputPassword}
                 />
                 <Text style={styles.showPasswordText} onPress={onShowPassword}>
-                  Показать
+                  Показати
                 </Text>
               </View>
 
@@ -159,7 +159,7 @@ const RegistrationScreen = ({ navigation }) => {
                 style={styles.btn}
                 onPress={onFormSubmit}
               >
-                <Text style={styles.btnTitle}>Зарегистрироваться</Text>
+                <Text style={styles.btnTitle}>Зареєструватися</Text>
               </TouchableOpacity>
 
               <View
@@ -172,7 +172,7 @@ const RegistrationScreen = ({ navigation }) => {
                   style={styles.accauntEnterText}
                   onPress={() => navigation.navigate("Login")}
                 >
-                  Уже есть аккаунт? Войти
+                  Вже є акаунт? Увійти
                 </Text>
               </View>
             </View>

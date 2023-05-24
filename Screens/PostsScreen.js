@@ -21,14 +21,18 @@ const PostsScreen = ({ navigation, route }) => {
     
   }, [route.params]);
 
-  const sendCoords = (coords) => {
+  const onOpenMap = (coords) => {
     navigation.navigate("Map", { coords });
+  };
+
+  const onOpenComments = () => {
+    navigation.navigate("Comments");
   }
 
   return (
     <View style={styles.container}>
       <View style={styles.title}>
-        <Text style={styles.titleText}>Публикации</Text>
+        <Text style={styles.titleText}>Публікації</Text>
         <SvgLogOut style={styles.svgLogOut} />
       </View>
 
@@ -58,13 +62,16 @@ const PostsScreen = ({ navigation, route }) => {
 
               <View style={styles.data}>
                 <View style={styles.feedback}>
-                  <SvgComment style={{ marginRight: 9 }} />
+                  <SvgComment
+                    onPress={onOpenComments}
+                    style={{ marginRight: 9 }}
+                  />
                   <Text style={{ marginRight: 27 }}>8</Text>
                 </View>
 
                 <View style={styles.location}>
                   <SvgMapPin
-                    onPress={()=>sendCoords(item.coords)}
+                    onPress={() => onOpenMap(item.coords)}
                     style={{ marginRight: 8 }}
                   />
                   <Text>{item.formData.photoLocation}</Text>
@@ -74,13 +81,6 @@ const PostsScreen = ({ navigation, route }) => {
           )}
         />
       </View>
-
-      <Text
-        style={{ marginTop: 10, marginLeft: 100 }}
-        onPress={() => navigation.navigate("Comments")}
-      >
-        GO TO COMMENTS
-      </Text>
     </View>
   );
 };
@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
   },
 
   form: {
-    height: 500,
+    height: 480,
     marginHorizontal: 16,
     marginTop: 32,
   },

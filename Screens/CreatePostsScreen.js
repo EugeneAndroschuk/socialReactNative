@@ -66,7 +66,7 @@ const CreatePostsScreen = ({navigation}) => {
   };
 
   const onPressPublicate = () => {
-    // Определяем геолокацию поста
+    // detecting geolocation
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
@@ -81,9 +81,8 @@ const CreatePostsScreen = ({navigation}) => {
       };
       setLocation(coords);
 
-      // отправляем данные
+      // sending data
       navigation.navigate("Posts", { currentPhoto, formData, coords });
-      // console.log({ currentPhoto, formData, coords });
     })();
     // отправляем данные
     // navigation.navigate("Posts", { currentPhoto, formData, coords});
@@ -95,7 +94,7 @@ const CreatePostsScreen = ({navigation}) => {
     <TouchableWithoutFeedback onPress={keyboardHide}>
       <View style={styles.container}>
         <View style={styles.title}>
-          <Text style={styles.titleText}>Создать публикацию</Text>
+          <Text style={styles.titleText}>Створити публікацію</Text>
           <TouchableOpacity
             style={styles.svgArrowLeft}
             onPress={() => navigation.navigate("Posts")}
@@ -120,13 +119,13 @@ const CreatePostsScreen = ({navigation}) => {
           </Camera>
 
           <Text style={styles.photoUploadText} onPress={onPressEditPhoto}>
-            {isPhoto ? "Редактировать фото" : "Загрузите фото"}
+            {isPhoto ? "Редагувати фото" : "Завантажте фото"}
           </Text>
 
           <TextInput
             style={styles.input}
             value={formData.photoTitle}
-            placeholder="Название..."
+            placeholder="Назва..."
             placeholderTextColor="rgba(189, 189, 189, 1)"
             onFocus={() => setIsShowKeyboard(true)}
             onBlur={() => setIsShowKeyboard(false)}
@@ -137,7 +136,7 @@ const CreatePostsScreen = ({navigation}) => {
             <TextInput
               style={{ ...styles.input, paddingLeft: 28 }}
               value={formData.photoLocation}
-              placeholder="Местность..."
+              placeholder="Місцевість..."
               placeholderTextColor="rgba(189, 189, 189, 1)"
               onFocus={() => setIsShowKeyboard(true)}
               onBlur={() => setIsShowKeyboard(false)}
@@ -160,7 +159,7 @@ const CreatePostsScreen = ({navigation}) => {
                 color: isPhoto ? "#FFFFFF" : "#BDBDBD",
               }}
             >
-              Опубликовать
+              Опублікувати
             </Text>
           </TouchableOpacity>
         </View>
