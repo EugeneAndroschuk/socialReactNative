@@ -18,7 +18,7 @@ import SvgTrash from "../assets/images/Svg/SvgTrash";
 import SvgMapPin from "../assets/images/Svg/SvgMapPin";
 import SvgCamera from "../assets/images/Svg/SvgCamera";
 
-const CreatePostsScreen = ({navigation}) => {
+const CreatePostsScreen = ({ navigation }) => {
   const [currentPhoto, setCurrentPhoto] = useState(null);
   const [isPhoto, setIsPhoto] = useState(false);
   const [hasPermission, setHasPermission] = useState(null);
@@ -31,26 +31,26 @@ const CreatePostsScreen = ({navigation}) => {
     async function request() {
       const answer = await Camera.requestCameraPermissionsAsync();
       setHasPermission(answer.status === "granted");
-    };
+    }
     request();
   }, []);
 
-  if (hasPermission === null) return <View/>;
+  if (hasPermission === null) return <View />;
   if (hasPermission === false) return <Text>No access to camera</Text>;
 
   const takePhoto = async () => {
-    console.log('нажал на камеру');
+    console.log("нажал на камеру");
     const photo = await cameraRef.takePictureAsync();
     setCurrentPhoto(photo.uri);
     setIsPhoto(true);
-  }
+  };
 
   const onPressEditPhoto = () => {
     if (isPhoto) {
       setIsPhoto(false);
       setCurrentPhoto(null);
-}
-  }
+    }
+  };
 
   const keyboardHide = () => {
     Keyboard.dismiss();
@@ -80,15 +80,12 @@ const CreatePostsScreen = ({navigation}) => {
         longitude: location.coords.longitude,
       };
       setLocation(coords);
+      console.log('pressed Publicate')
 
       // sending data
       navigation.navigate("Posts", { currentPhoto, formData, coords });
     })();
-    // отправляем данные
-    // navigation.navigate("Posts", { currentPhoto, formData, coords});
-    // console.log({ currentPhoto, formData, coords});
-
-  }
+  };
 
   return (
     <TouchableWithoutFeedback onPress={keyboardHide}>
@@ -104,19 +101,32 @@ const CreatePostsScreen = ({navigation}) => {
         </View>
 
         <View style={styles.form}>
-          <Camera style={styles.photo} ref={(ref) => setCameraRef(ref)}>
-            <Image
-              source={{ uri: currentPhoto }}
-              style={{ width: 100, height: 240 }}
-            />
-            <TouchableOpacity
-              activeOpacity={0.9}
-              style={styles.cameraWrap}
-              onPress={takePhoto}
-            >
-              <SvgCamera style={styles.camera} />
-            </TouchableOpacity>
-          </Camera>
+          <View style={styles.cameraWrap}>
+            <Camera style={styles.camera} ref={(ref) => setCameraRef(ref)}>
+              <View style={styles.photoWrap}>
+                {isPhoto &&
+                  <Image
+                    source={{ uri: currentPhoto }}
+                    style={{
+                      width: 343,
+                      height: 240,
+                      zIndex: 1,
+                      // borderColor: "red",
+                      // borderWidth: 2,
+                    }}
+                  />
+                }
+              </View>
+
+              <TouchableOpacity
+                activeOpacity={0.9}
+                style={{ ...styles.snapWrap, left: "50%" }}
+                onPress={takePhoto}
+              >
+                <SvgCamera />
+              </TouchableOpacity>
+            </Camera>
+          </View>
 
           <Text style={styles.photoUploadText} onPress={onPressEditPhoto}>
             {isPhoto ? "Редагувати фото" : "Завантажте фото"}
@@ -212,23 +222,38 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
   },
 
-  photo: {
-    // width: 330,
-    height: 240,
-    backgroundColor: "#F6F6F6",
-    borderWidth: 1,
-    borderStyle: "solid",
-    borderColor: "#E8E8E8",
-    borderRadius: 8,
-    marginBottom: 8,
-    justifyContent: "center",
-    alignItems: "center",
-  },
+  // height: "70%",
+  // marginHorizontal: 2,
+  // marginTop: 40,
+  // borderRadius: 10,
+  // alignItems: "center",
+  // justifyContent: "flex-end",
 
   cameraWrap: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
+    height: 240,
+    backgroundColor: "#F6F6F6",
+    borderRadius: 8,
+    marginBottom: 8,
+    overflow: "hidden",
+  },
+
+  camera: {
+    borderRadius: 8,
+    height: 240,
+  },
+
+  photoWrap: {
+    // position: "absolute",
+    // top: 0,
+    // left: 0,
+    // borderColor: "#fff",
+    borderWidth: 1,
+    borderRadius: 8,
+  },
+
+  snapWrap: {
+    position: "absolute",
+    top: 90,
     zIndex: 999,
     width: 60,
     height: 60,
@@ -252,7 +277,7 @@ const styles = StyleSheet.create({
   },
 
   svgMapPin: {
-    position: 'absolute',
+    position: "absolute",
     left: 0,
     top: 14,
   },
