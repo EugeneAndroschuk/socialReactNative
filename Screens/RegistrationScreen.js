@@ -13,12 +13,14 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import SvgAddProfilePhoto from "../assets/images/Svg/SvgAddProfilePhoto";
+import { useDispatch } from "react-redux";
+import { authSignUpUser } from "../redux/auth/authOperations";
 
 const initialFormData = {
-  login: '',
-  email: '',
-  password: '',
-}
+  login: "",
+  email: "",
+  password: "",
+};
 
 const RegistrationScreen = ({ navigation }) => {
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
@@ -27,6 +29,7 @@ const RegistrationScreen = ({ navigation }) => {
   const [isFocusLoginInput, setIsFocusLoginInput] = useState(false);
   const [isFocusEmailInput, setIsFocusEmailInput] = useState(false);
   const [isFocusPasswordInput, setIsFocusPasswordInput] = useState(false);
+  const dispatch = useDispatch();
 
   const keyboardHide = () => {
     Keyboard.dismiss();
@@ -46,9 +49,10 @@ const RegistrationScreen = ({ navigation }) => {
   };
 
   const onFormSubmit = () => {
-    console.log(formData);
+    // authSignUpUser(formData);
+    dispatch(authSignUpUser(formData));
     setFormData(initialFormData);
-    navigation.navigate("Posts");
+    // navigation.navigate("Posts");
   };
 
   const detectPositionPhotoProfile = () => {
@@ -63,7 +67,7 @@ const RegistrationScreen = ({ navigation }) => {
   const onFocusLoginInput = () => {
     setIsShowKeyboard(true);
     setIsFocusLoginInput(true);
-  }
+  };
 
   const onFocusEmailInput = () => {
     setIsShowKeyboard(true);
@@ -139,7 +143,9 @@ const RegistrationScreen = ({ navigation }) => {
                   style={{
                     ...styles.input,
                     borderColor: isFocusPasswordInput ? "#FF6C00" : "#E8E8E8",
-                    backgroundColor: isFocusPasswordInput ? "#FFFFFF" : "#F6F6F6",
+                    backgroundColor: isFocusPasswordInput
+                      ? "#FFFFFF"
+                      : "#F6F6F6",
                   }}
                   value={formData.password}
                   placeholder="Пароль"
@@ -256,7 +262,7 @@ const styles = StyleSheet.create({
   },
 
   showPasswordText: {
-    position: 'absolute',
+    position: "absolute",
     top: 16,
     right: 16,
     fontFamily: "Roboto-Regular-400",
@@ -271,8 +277,8 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     marginTop: 27,
     marginBottom: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
 
   btnTitle: {

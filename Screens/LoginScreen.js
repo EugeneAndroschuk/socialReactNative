@@ -12,6 +12,8 @@ import {
   KeyboardAvoidingView,
   TouchableWithoutFeedback,
 } from "react-native";
+import { useDispatch } from "react-redux";
+import { authSignInUser } from "../redux/auth/authOperations";
 
 const initialFormData = {
   email: "",
@@ -24,6 +26,7 @@ const LoginScreen = ({navigation}) => {
   const [isShowPassword, setIsShowPassword] = useState(false);
   const [isFocusEmailInput, setIsFocusEmailInput] = useState(false);
   const [isFocusPasswordInput, setIsFocusPasswordInput] = useState(false);
+  const dispatch = useDispatch();
 
   const onFocusEmailInput = () => {
     setIsShowKeyboard(true);
@@ -50,8 +53,9 @@ const LoginScreen = ({navigation}) => {
 
   const onFormSubmit = () => {
     console.log(formData);
+    dispatch(authSignInUser(formData));
     setFormData(initialFormData);
-    navigation.navigate("Posts");
+    // navigation.navigate("Posts");
   };
 
   const detectPositionBtnTitle = () => {
