@@ -49,10 +49,8 @@ const RegistrationScreen = ({ navigation }) => {
   };
 
   const onFormSubmit = () => {
-    // authSignUpUser(formData);
     dispatch(authSignUpUser(formData));
     setFormData(initialFormData);
-    // navigation.navigate("Posts");
   };
 
   const detectPositionPhotoProfile = () => {

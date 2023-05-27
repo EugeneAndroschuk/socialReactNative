@@ -1,0 +1,1 @@
+export const getStateChange = state => state.auth.stateChange;

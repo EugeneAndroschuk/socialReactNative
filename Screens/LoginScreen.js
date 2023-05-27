@@ -52,10 +52,8 @@ const LoginScreen = ({navigation}) => {
   };
 
   const onFormSubmit = () => {
-    console.log(formData);
     dispatch(authSignInUser(formData));
     setFormData(initialFormData);
-    // navigation.navigate("Posts");
   };
 
   const detectPositionBtnTitle = () => {

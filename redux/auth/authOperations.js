@@ -1,24 +1,24 @@
-// import db from "../../firebase/config";
-import { createAsyncThunk } from "@reduxjs/toolkit";
-import authSlice from "./authSlice";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  updateProfile,
+  onAuthStateChanged,
+  signOut,
 } from "firebase/auth";
 import { auth } from "../../firebase/config";
-import { updateUser } from "./authSlice";
+import { updateUser, authStateChange } from "./authSlice";
 
 export const authSignUpUser =
-  ({ email, password, name }) =>
+  ({ email, password, login }) =>
   async (dispatch, getState) => {
     try {
       await createUserWithEmailAndPassword(auth, email, password);
-      const user = await auth().currentUser;
-      await user.updateProfile({
-        displayName: name,
+      await updateProfile(auth.currentUser, {
+        displayName: login,
       });
-      dispatch(updateUser({ userId: user.uid, name: displayName }));
-      console.log("user", user);
+      const { displayName, uid } = auth.currentUser;
+      dispatch(updateUser({ userId: uid, login: displayName }));
+      console.log("dispatch in authSignUpUser");
     } catch (error) {
       throw error;
     }
@@ -33,58 +33,36 @@ export const authSignUpUser =
             email,
             password
           );
-          // dispatch(authSlice.actions.updateUserProfile({ userId: user.uid }));
-          console.log("user", user);
         } catch (error) {
           throw error;
         }
-      };
-
-// export const authSignUpUser = createAsyncThunk(
-//   "auth/authSignUpUser",
-//   async ({ email, password }, thunkAPI) => {
-//     try {
-//       createUserWithEmailAndPassword(auth, email, password).then(
-//         (userCredential) => {
-//           // Signed in
-//           const user = userCredential.user;
-//           console.log(user);
-//           return user;
-//           // ...
-//         }
-//       );
-//     } catch (error) {
-//       return thunkAPI.rejectWithValue(error.message);
-//     }
-//   }
-// );
-
-// export const authSignUpUser =
-//   ({ email, password }) =>
-//   async (dispatch, getState) => {
-//     try {
-//       const data = await createUserWithEmailAndPassword(
-//         auth,
-//         email,
-//         password
-//       );
-//       data.then((res) => console.log(res.user));
-//     } catch (error) {
-//       throw error;
-//     }
-//   };
-
-// export const authSignUpUser = async ({ email, password }) => {
-//   await createUserWithEmailAndPassword(auth, email, password)
-//     .then((userCredential) => {
-//       // Signed in
-//       const user = userCredential.user;
-//       console.log(user);
-//       // ...
-//     })
-//     .catch((error) => {
-//       const errorCode = error.code;
-//       const errorMessage = error.message;
-//       // ..
-//     });
-// };
+    };
+      
+    export const authStateChangeUser = () =>
+      async (dispatch, getState) => {
+        await onAuthStateChanged(auth, (user) => {
+          console.log("user in onAuthStateChanged", user);
+          if (user) {
+            console.log('user is exist')
+            // User is signed in, see docs for a list of available properties
+            // https://firebase.google.com/docs/reference/js/auth.user
+            dispatch(updateUser({ userId: user.uid, login: user.displayName }));
+            dispatch(authStateChange(true));
+            // ...
+          } else {
+            console.log('user is not exist')
+            // User is signed out
+            // ...
+          }
+        });
+  };
+      
+  export const authSignOutUser = () => async (dispatch, getState) => {
+    await signOut(auth)
+      .then(() => {
+        // Sign-out successful.
+      })
+      .catch((error) => {
+        // An error happened.
+      });
+  };

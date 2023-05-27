@@ -11,15 +11,22 @@ import SvgLogOut from "../assets/images/Svg/SvgLogOut";
 import SvgComment from "../assets/images/Svg/SvgComment";
 import SvgMapPin from "../assets/images/Svg/SvgMapPin";
 import { useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { signOutUser } from "../redux/auth/authSlice";
 
 const PostsScreen = ({ navigation, route }) => {
   const [posts, setPosts] = useState([]);
+  const dispatch = useDispatch();
 
   useEffect(() => {
    
     if (route.params) setPosts((prev) => [...prev, route.params])
     
   }, [route.params]);
+
+  const onLogOut = () => {
+    dispatch(signOutUser());
+  }
 
   const onOpenMap = (coords) => {
     navigation.navigate("Map", { coords });
@@ -33,7 +40,7 @@ const PostsScreen = ({ navigation, route }) => {
     <View style={styles.container}>
       <View style={styles.title}>
         <Text style={styles.titleText}>Публікації</Text>
-        <SvgLogOut style={styles.svgLogOut} />
+        <SvgLogOut style={styles.svgLogOut} onPress={onLogOut} />
       </View>
 
       <View style={styles.posts}>
