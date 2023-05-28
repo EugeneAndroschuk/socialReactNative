@@ -11,7 +11,12 @@ import {
 } from "react-native";
 import * as Location from "expo-location";
 import { Camera, CameraType } from "expo-camera";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useSelector } from "react-redux";
+import { db, storage } from "../firebase/config";
+import { collection, addDoc } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { getUserId } from "../redux/auth/selectors";
 
 import SvgArrowLeft from "../assets/images/Svg/SvgArrowLeft";
 import SvgTrash from "../assets/images/Svg/SvgTrash";
@@ -26,6 +31,30 @@ const CreatePostsScreen = ({ navigation }) => {
   const [formData, setFormData] = useState({});
   const [location, setLocation] = useState(null);
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
+  const [photoUrl, setPhotoUrl] = useState(null);
+  const userId = useSelector(getUserId);
+  const isFirstRender = useRef(true);
+
+  useEffect(() => {
+    // uploading post to server
+    if (isFirstRender.current) { isFirstRender.current = false; return; }
+    const writeDataToFirestore = async () => {
+      try {
+        const docRef = await addDoc(collection(db, "posts"), {
+          photoUrl,
+          location,
+          title: formData.photoTitle,
+          local: formData.photoLocation,
+          userId,
+        });
+        console.log("Document written with ID: ", docRef.id);
+      } catch (e) {
+        console.error("Error adding document: ", e);
+        throw e;
+      }
+    };
+    writeDataToFirestore();
+  }, [photoUrl]);
 
   useEffect(() => {
     async function request() {
@@ -65,6 +94,26 @@ const CreatePostsScreen = ({ navigation }) => {
     setFormData((prev) => ({ ...prev, photoLocation: value }));
   };
 
+  const uploadPhotoToServer = async (coords) => {
+    const response = await fetch(currentPhoto);
+    const file = await response.blob();
+    
+    const uniquePostId = Date.now().toString();
+
+    const storageRef = ref(storage, `postImage/${uniquePostId}`);
+
+    //uploading photo
+    await uploadBytes(storageRef, file).then((snapshot) => {
+      console.log("Uploaded a blob or file!");
+    });
+
+    //downloading photo
+    await getDownloadURL(ref(storage, `postImage/${uniquePostId}`)).then((url) => {
+      console.log("Downloaded file with URL", url);
+      setPhotoUrl(url);
+    });
+  };
+
   const onPressPublicate = () => {
     // detecting geolocation
     (async () => {
@@ -81,6 +130,29 @@ const CreatePostsScreen = ({ navigation }) => {
       };
       setLocation(coords);
       console.log('pressed Publicate')
+
+      // downloading photo from server
+      await uploadPhotoToServer();
+      // console.log('we have photo', photo);
+
+      // uploading post to server
+      // const writeDataToFirestore = async () => {
+      //   try {
+      //     const docRef = await addDoc(collection(db, "posts"), {
+      //       photo,
+      //       coords,
+      //       title: formData.photoTitle,
+      //       local: formData.photoLocation,
+      //       userId,
+      //     });
+      //     console.log("Document written with ID: ", docRef.id);
+      //   } catch (e) {
+      //     console.error("Error adding document: ", e);
+      //     throw e;
+      //   }
+      // };
+
+      // writeDataToFirestore();
 
       // sending data
       navigation.navigate("Posts", { currentPhoto, formData, coords });
