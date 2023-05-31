@@ -11,7 +11,6 @@ const Main = () => {
     const dispatch = useDispatch();
 
     useEffect(() => {
-      console.log("useeffect in main");
       dispatch(authStateChangeUser());
     }, []);
     

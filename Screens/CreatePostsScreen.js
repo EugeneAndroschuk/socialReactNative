@@ -68,7 +68,6 @@ const CreatePostsScreen = ({ navigation }) => {
   if (hasPermission === false) return <Text>No access to camera</Text>;
 
   const takePhoto = async () => {
-    console.log("нажал на камеру");
     const photo = await cameraRef.takePictureAsync();
     setCurrentPhoto(photo.uri);
     setIsPhoto(true);
@@ -155,7 +154,8 @@ const CreatePostsScreen = ({ navigation }) => {
       // writeDataToFirestore();
 
       // sending data
-      navigation.navigate("Posts", { currentPhoto, formData, coords });
+      // navigation.navigate("Posts", { currentPhoto, formData, coords });
+      navigation.navigate("Posts");
     })();
   };
 

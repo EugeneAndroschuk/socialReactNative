@@ -41,16 +41,13 @@ export const authSignUpUser =
     export const authStateChangeUser = () =>
       async (dispatch, getState) => {
         await onAuthStateChanged(auth, (user) => {
-          console.log("user in onAuthStateChanged", user);
           if (user) {
-            console.log('user is exist')
             // User is signed in, see docs for a list of available properties
             // https://firebase.google.com/docs/reference/js/auth.user
             dispatch(updateUser({ userId: user.uid, login: user.displayName }));
             dispatch(authStateChange(true));
             // ...
           } else {
-            console.log('user is not exist')
             // User is signed out
             // ...
           }

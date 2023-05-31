@@ -7,11 +7,11 @@ import {
 } from "react-native";
 import { useState, useEffect } from "react";
 import MapView, { Marker } from "react-native-maps";
-import * as Location from "expo-location";
+// import * as Location from "expo-location";
 import SvgArrowLeft from "../assets/images/Svg/SvgArrowLeft";
 
 const MapScreen = ({ navigation, route }) => {
-    const [formData, setFormData] = useState({});
+    // const [formData, setFormData] = useState({});
     const [location, setLocation] = useState(null);
 
     useEffect(() => {
@@ -19,27 +19,10 @@ const MapScreen = ({ navigation, route }) => {
       console.log(route.params.coords);
     }, [route.params]);
 
-    // useEffect(() => {
-    //   (async () => {
-    //     let { status } = await Location.requestForegroundPermissionsAsync();
-    //     if (status !== "granted") {
-    //       setErrorMsg("Permission to access location was denied");
-    //       return;
-    //     }
-
-    //     const location = await Location.getCurrentPositionAsync({});
-    //     const coords = {
-    //       latitude: location.coords.latitude,
-    //       longitude: location.coords.longitude,
-    //     };
-    //     setLocation(coords);
-    //   })();
-    // }, []);
-
   return (
     <View style={styles.container}>
       <View style={styles.title}>
-        <Text style={styles.titleText}>КАРТА</Text>
+        <Text style={styles.titleText}>Map</Text>
         <TouchableOpacity
           style={styles.svgArrowLeft}
           onPress={() => navigation.navigate("Posts")}

@@ -6,13 +6,13 @@ import { getStorage } from "firebase/storage";
 import { initializeApp } from "firebase/app";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCWn2pCkIimj9q2XJxp7hlq3l5e8DG31GE",
-  authDomain: "social-react-native-2d33b.firebaseapp.com",
-  databaseURL: "https://social-react-native-2d33b.firebaseio.com",
-  projectId: "social-react-native-2d33b",
-  storageBucket: "social-react-native-2d33b.appspot.com",
+  apiKey: "AIzaSyBX2a6T1pv7F4n_sv84KnDEytIXEhjYZsw",
+  authDomain: "social-41e1f.firebaseapp.com",
+  databaseURL: "https://social-41e1f.firebaseio.com",
+  projectId: "social-41e1f",
+  storageBucket: "social-41e1f.appspot.com",
   messagingSenderId: "sender-id",
-  appId: "115638661091",
+  appId: "431100237283",
   measurementId: "G-measurement-id",
 };
 

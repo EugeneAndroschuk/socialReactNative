@@ -1,19 +1,77 @@
 import {
   StyleSheet,
   View,
-    Text,
+  Text,
   Image,
   TextInput,
   TouchableOpacity,
   Dimensions,
+  FlatList,
 } from "react-native";
 import { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
+import {
+  doc,
+  updateDoc,
+  addDoc,
+  setDoc,
+  getDocs,
+  collection,
+} from "firebase/firestore";
+import { db } from "../firebase/config";
+import { getLogin } from "../redux/auth/selectors";
 
 import SvgArrowLeft from "../assets/images/Svg/SvgArrowLeft";
 import SvgArrowUp from "../assets/images/Svg/SvgArrowUp";
 
-const CommentsScreen = ({ navigation }) => {
-  const [formData, setFormData] = useState({});
+const CommentsScreen = ({ navigation, route }) => {
+  const [comment, setComment] = useState("");
+  const [comments, setComments] = useState([]);
+  const login = useSelector(getLogin);
+  const postId = route.params.id;
+  const photoUrl = route.params.url;
+
+  const getCommentsFromFirestore = async () => {
+    try {
+      const snapshot = await getDocs(
+        collection(db, "posts", postId, "comments")
+      );
+      const snapshotComments = [];
+      snapshot.forEach((doc) =>
+        snapshotComments.push({ ...doc.data(), id: doc.id })
+      );
+      // console.log(snapshotComments);
+      setComments(snapshotComments);
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  };
+
+  useEffect(() => {
+    getCommentsFromFirestore();
+  }, [comments]);
+
+  const updateDataInFirestore = async () => {
+    try {
+      const docRef = await addDoc(collection(db, "posts", postId, "comments"), {
+        comment: comment,
+        login: login,
+      });
+      console.log("Document written with ID: ", docRef.id);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const onMakeComment = () => {
+    updateDataInFirestore();
+    setComment("");
+  };
+
+  const onHandleInputComment = (value) => {
+    setComment(value);
+  };
 
   return (
     <View style={styles.container}>
@@ -27,55 +85,58 @@ const CommentsScreen = ({ navigation }) => {
         </TouchableOpacity>
       </View>
 
-      <View style={styles.photo}></View>
+      <View style={styles.photoWrap}>
+        <Image
+          style={styles.photo}
+          source={{uri: photoUrl}}
+        />
+      </View>
 
-          <View style={{
-              ...styles.comment,
-              flexDirection: "row",
-            //   flexDirection: 'row-reverse',
-          }}>
-        <View style={styles.avatar}>
-          <Image
-            style={styles.avatarImage}
-            source={require("../assets/images/avatar-1x.jpg")}
-          />
-        </View>
-        <View
-          style={{
-            width: 299,
-            backgroundColor: "rgba(0, 0, 0, 0.03)",
-            paddingTop: 16,
-            paddingRight: 16,
-            paddingBottom: 35,
-            paddingLeft: 16,
-          }}
-        >
-          <Text style={styles.commentsText}>
-            Really love your most recent photo. I’ve been trying to capture the
-            same thing for a few months and would love some tips!
-          </Text>
-          <Text
-            style={{...styles.commentsTime,
-              right: 16,
-            }}
-          >
-            09 июня, 2020 | 08:40
-          </Text>
-        </View>
+      <View style={styles.comment}>
+        <FlatList
+          data={comments}
+          keyExtractor={(item, indx) => indx.toString()}
+          renderItem={({ item }) => (
+            <View style={styles.comments}>
+              <View style={styles.avatar}>
+                <Image
+                  style={styles.avatarImage}
+                  source={require("../assets/images/avatar-1x.jpg")}
+                />
+              </View>
+              <View
+                style={{
+                  width: 299,
+                  backgroundColor: "rgba(0, 0, 0, 0.03)",
+                  paddingTop: 16,
+                  paddingRight: 16,
+                  paddingBottom: 35,
+                  paddingLeft: 16,
+                }}
+              >
+                <Text style={styles.commentsText}>{item.comment}</Text>
+                <Text style={{ ...styles.commentsTime, right: 16 }}>
+                  09 июня, 2020 | 08:40
+                </Text>
+              </View>
+            </View>
+          )}
+        />
       </View>
 
       <View style={{ ...styles.form, width: Dimensions.get("window").width }}>
         <View style={styles.inputWrap}>
           <TextInput
             style={styles.input}
-            value={formData.photoLocation}
+            value={comment}
             placeholder="Комментировать..."
             placeholderTextColor="rgba(189, 189, 189, 1)"
-            // onChangeText={() =>
-            //   setFormData((prev) => ({ ...prev, photoLocation: value }))
-            // }
+            onChangeText={onHandleInputComment}
           />
-          <TouchableOpacity activeOpacity={0.9} style={styles.btnSendComment}>
+          <TouchableOpacity
+            onPress={onMakeComment}
+            style={styles.btnSendComment}
+          >
             <SvgArrowUp />
           </TouchableOpacity>
         </View>
@@ -115,7 +176,7 @@ const styles = StyleSheet.create({
     left: 16,
   },
 
-  photo: {
+  photoWrap: {
     height: 240,
     backgroundColor: "#F6F6F6",
     borderWidth: 1,
@@ -124,19 +185,25 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 8,
     justifyContent: "center",
-    alignItems: "center",
     marginHorizontal: 16,
-    marginTop: 32,
+  },
+
+  photo: {
+    height: 240,
+    borderRadius: 8,
   },
 
   comment: {
-     
-    // gap: 16,
+    height: 340,
     paddingLeft: 16,
     paddingRight: 16,
     justifyContent: "space-between",
+  },
 
-    // marginHorizontal: 16,
+  comments: {
+    justifyContent: "space-between",
+    flexDirection: "row",
+    marginBottom: 5,
   },
 
   avatar: {
@@ -162,8 +229,8 @@ const styles = StyleSheet.create({
   },
 
   commentsTime: {
-      position: "absolute",
-      bottom: 16,
+    position: "absolute",
+    bottom: 16,
     fontFamily: "Roboto-Regular-400",
     fontSize: 10,
     lineHeight: 13,

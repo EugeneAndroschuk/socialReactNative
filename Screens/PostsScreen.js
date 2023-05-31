@@ -13,16 +13,28 @@ import SvgMapPin from "../assets/images/Svg/SvgMapPin";
 import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { signOutUser } from "../redux/auth/authSlice";
+import { collection, getDocs } from "firebase/firestore"; 
+import { db } from "../firebase/config";
 
 const PostsScreen = ({ navigation, route }) => {
   const [posts, setPosts] = useState([]);
   const dispatch = useDispatch();
 
+  const getDataFromFirestore = async () => {
+    try {
+      const snapshot = await getDocs(collection(db, "posts"));
+      const snapshotPosts = [];
+      snapshot.forEach((doc) => snapshotPosts.push({ ...doc.data(), id: doc.id }));
+      setPosts(snapshotPosts);
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  };
+
   useEffect(() => {
-   
-    if (route.params) setPosts((prev) => [...prev, route.params])
-    
-  }, [route.params]);
+    getDataFromFirestore();
+  }, [posts]);
 
   const onLogOut = () => {
     dispatch(signOutUser());
@@ -32,8 +44,8 @@ const PostsScreen = ({ navigation, route }) => {
     navigation.navigate("Map", { coords });
   };
 
-  const onOpenComments = () => {
-    navigation.navigate("Comments");
+  const onOpenComments = (id, url) => {
+    navigation.navigate("Comments", {id, url});
   }
 
   return (
@@ -60,17 +72,14 @@ const PostsScreen = ({ navigation, route }) => {
           renderItem={({ item }) => (
             <View style={styles.post}>
               <View style={styles.photoWrap}>
-                <Image
-                  source={{ uri: item.currentPhoto }}
-                  style={styles.photo}
-                />
+                <Image source={{ uri: item.photoUrl }} style={styles.photo} />
               </View>
-              <Text style={styles.photoTitle}>{item.formData.photoTitle}</Text>
+              <Text style={styles.photoTitle}>{item.title}</Text>
 
               <View style={styles.data}>
                 <View style={styles.feedback}>
                   <SvgComment
-                    onPress={onOpenComments}
+                    onPress={() => onOpenComments(item.id, item.photoUrl)}
                     style={{ marginRight: 9 }}
                   />
                   <Text style={{ marginRight: 27 }}>8</Text>
@@ -78,10 +87,10 @@ const PostsScreen = ({ navigation, route }) => {
 
                 <View style={styles.location}>
                   <SvgMapPin
-                    onPress={() => onOpenMap(item.coords)}
+                    onPress={() => onOpenMap(item.location)}
                     style={{ marginRight: 8 }}
                   />
-                  <Text>{item.formData.photoLocation}</Text>
+                  <Text>{item.local}</Text>
                 </View>
               </View>
             </View>
