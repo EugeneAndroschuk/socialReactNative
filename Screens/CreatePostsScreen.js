@@ -34,6 +34,7 @@ const CreatePostsScreen = ({ navigation }) => {
   const [photoUrl, setPhotoUrl] = useState(null);
   const userId = useSelector(getUserId);
   const isFirstRender = useRef(true);
+  const leftPositionSnapWrap = (Dimensions.get("window").width / 2) - 16 - 30;
 
   useEffect(() => {
     // uploading post to server
@@ -132,29 +133,7 @@ const CreatePostsScreen = ({ navigation }) => {
 
       // downloading photo from server
       await uploadPhotoToServer();
-      // console.log('we have photo', photo);
-
-      // uploading post to server
-      // const writeDataToFirestore = async () => {
-      //   try {
-      //     const docRef = await addDoc(collection(db, "posts"), {
-      //       photo,
-      //       coords,
-      //       title: formData.photoTitle,
-      //       local: formData.photoLocation,
-      //       userId,
-      //     });
-      //     console.log("Document written with ID: ", docRef.id);
-      //   } catch (e) {
-      //     console.error("Error adding document: ", e);
-      //     throw e;
-      //   }
-      // };
-
-      // writeDataToFirestore();
-
-      // sending data
-      // navigation.navigate("Posts", { currentPhoto, formData, coords });
+     
       navigation.navigate("Posts");
     })();
   };
@@ -176,27 +155,43 @@ const CreatePostsScreen = ({ navigation }) => {
           <View style={styles.cameraWrap}>
             <Camera style={styles.camera} ref={(ref) => setCameraRef(ref)}>
               <View style={styles.photoWrap}>
-                {isPhoto &&
-                  <Image
-                    source={{ uri: currentPhoto }}
-                    style={{
-                      width: 343,
-                      height: 240,
-                      zIndex: 1,
-                      // borderColor: "red",
-                      // borderWidth: 2,
-                    }}
-                  />
-                }
+                {isPhoto && (
+                  <>
+                    <TouchableOpacity
+                      activeOpacity={0.9}
+                      style={{
+                        ...styles.snapWrap,
+                        left: leftPositionSnapWrap,
+                      }}
+                      onPress={takePhoto}
+                    >
+                      <SvgCamera />
+                    </TouchableOpacity>
+                    <Image
+                      source={{ uri: currentPhoto }}
+                      style={{
+                        width: 343,
+                        height: 240,
+                        zIndex: 1,
+                        // borderColor: "red",
+                        // borderWidth: 2,
+                      }}
+                    />
+                  </>
+                )}
               </View>
-
-              <TouchableOpacity
-                activeOpacity={0.9}
-                style={{ ...styles.snapWrap, left: "50%" }}
-                onPress={takePhoto}
-              >
-                <SvgCamera />
-              </TouchableOpacity>
+              {!isPhoto && (
+                <TouchableOpacity
+                  activeOpacity={0.9}
+                  style={{
+                    ...styles.snapWrap,
+                    left: leftPositionSnapWrap,
+                  }}
+                  onPress={takePhoto}
+                >
+                  <SvgCamera />
+                </TouchableOpacity>
+              )}
             </Camera>
           </View>
 
@@ -326,13 +321,13 @@ const styles = StyleSheet.create({
   snapWrap: {
     position: "absolute",
     top: 90,
-    zIndex: 999,
     width: 60,
     height: 60,
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 60,
     backgroundColor: "rgba(255, 255, 255, 0.3)",
+    zIndex: 2,
   },
 
   postText: {},

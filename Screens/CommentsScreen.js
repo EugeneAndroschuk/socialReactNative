@@ -96,8 +96,8 @@ const CommentsScreen = ({ navigation, route }) => {
         <FlatList
           data={comments}
           keyExtractor={(item, indx) => indx.toString()}
-          renderItem={({ item }) => (
-            <View style={styles.comments}>
+          renderItem={({ item, index }) => (
+            <View style={{...styles.comments, flexDirection: index % 2 === 0 ? 'row' : 'row-reverse'}}>
               <View style={styles.avatar}>
                 <Image
                   style={styles.avatarImage}
@@ -186,6 +186,8 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     justifyContent: "center",
     marginHorizontal: 16,
+    marginTop: 32,
+    marginBottom: 32,
   },
 
   photo: {
@@ -194,7 +196,7 @@ const styles = StyleSheet.create({
   },
 
   comment: {
-    height: 340,
+    height: 320,
     paddingLeft: 16,
     paddingRight: 16,
     justifyContent: "space-between",
@@ -202,8 +204,7 @@ const styles = StyleSheet.create({
 
   comments: {
     justifyContent: "space-between",
-    flexDirection: "row",
-    marginBottom: 5,
+    marginBottom: 24,
   },
 
   avatar: {

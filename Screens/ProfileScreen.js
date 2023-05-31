@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -6,15 +6,48 @@ import {
   Dimensions,
   Image,
   Keyboard,
+  FlatList,
 } from "react-native";
 import SvgAddProfilePhoto from "../assets/images/Svg/SvgAddProfilePhoto";
 import SvgRemoveProfilePhoto from "../assets/images/Svg/SvgRemoveProfilePhoto";
+import SvgLogOut from "../assets/images/Svg/SvgLogOut";
 import SvgComment from "../assets/images/Svg/SvgComment";
 import SvgLike from "../assets/images/Svg/SvgLike";
 import SvgMapPin from "../assets/images/Svg/SvgMapPin";
+import { collection, query, where, getDocs } from "firebase/firestore";
+import { useSelector, useDispatch } from "react-redux";
+import { getUserId } from "../redux/auth/selectors";
+import { db } from "../firebase/config";
+import { signOutUser } from "../redux/auth/authSlice";
 
 const ProfileScreen = ({ navigation }) => {
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
+  const [posts, setPosts] = useState([]);
+  const userId = useSelector(getUserId);
+  const dispatch = useDispatch();
+
+  const getUserPostsFromFirestore = async () => {
+    try {
+      const q = query(collection(db, "posts"), where("userId", "==", userId));
+      const snapshot = await getDocs(q);
+      const snapshotPosts = [];
+      snapshot.forEach((doc) =>
+        snapshotPosts.push({ ...doc.data(), id: doc.id })
+      );
+      setPosts(snapshotPosts);
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  };
+
+  useEffect(() => {
+    getUserPostsFromFirestore();
+  }, [])
+  
+  const onLogOut = () => {
+    dispatch(signOutUser());
+  };
 
   const keyboardHide = () => {
     Keyboard.dismiss();
@@ -46,29 +79,38 @@ const ProfileScreen = ({ navigation }) => {
         >
           <SvgRemoveProfilePhoto style={styles.addBtn} />
         </View>
+        <SvgLogOut style={styles.svgLogOut} onPress={onLogOut} />
         <View style={styles.formTitle}>
           <Text style={styles.userName}>Natali Romanova</Text>
         </View>
 
         <View style={styles.form}>
-          <View style={styles.post}>
-            <View style={styles.photo}></View>
-            <Text style={styles.photoTitle}>Лес</Text>
+          <FlatList
+            data={posts}
+            keyExtractor={(item, indx) => indx.toString()}
+            renderItem={({ item }) => (
+              <View style={styles.post}>
+                <View style={styles.photoWrap}>
+                  <Image source={{ uri: item.photoUrl }} style={styles.photo} />
+                </View>
+                <Text style={styles.photoTitle}>{item.title}</Text>
 
-            <View style={styles.data}>
-              <View style={styles.feedback}>
-                <SvgComment style={{ marginRight: 9 }} />
-                <Text style={{ marginRight: 27 }}>8</Text>
-                <SvgLike style={{ marginRight: 10 }} />
-                <Text>153</Text>
-              </View>
+                <View style={styles.data}>
+                  <View style={styles.feedback}>
+                    <SvgComment style={{ marginRight: 9 }} />
+                    <Text style={{ marginRight: 27 }}>8</Text>
+                    <SvgLike style={{ marginRight: 10 }} />
+                    <Text>153</Text>
+                  </View>
 
-              <View style={styles.location}>
-                <SvgMapPin style={{ marginRight: 8 }} />
-                <Text>Ukraine</Text>
+                  <View style={styles.location}>
+                    <SvgMapPin style={{ marginRight: 8 }} />
+                    <Text>{item.local}</Text>
+                  </View>
+                </View>
               </View>
-            </View>
-          </View>
+            )}
+          />
         </View>
       </View>
     </View>
@@ -114,6 +156,12 @@ const styles = StyleSheet.create({
     color: "#fff",
   },
 
+  svgLogOut: {
+    position: "absolute",
+    top: 22,
+    right: 16,
+  },
+
   form: {
     marginHorizontal: 16,
     marginBottom: 83,
@@ -137,7 +185,7 @@ const styles = StyleSheet.create({
     marginBottom: 46,
   },
 
-  photo: {
+  photoWrap: {
     height: 240,
     backgroundColor: "#F6F6F6",
     borderWidth: 1,
@@ -146,9 +194,11 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 8,
     justifyContent: "center",
-    alignItems: "center",
+  },
 
-    marginBottom: 8,
+  photo: {
+    height: 240,
+    borderRadius: 8,
   },
 
   photoTitle: {
@@ -162,7 +212,7 @@ const styles = StyleSheet.create({
     // flex: 1,
     // justifyContent: 'center',
     flexDirection: "row",
-    justifyContent: 'space-between',
+    justifyContent: "space-between",
     // alignItems: 'center',
   },
 
