@@ -12,11 +12,12 @@ import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import {
   doc,
-  updateDoc,
   addDoc,
   setDoc,
   getDocs,
   collection,
+  updateDoc,
+  increment,
 } from "firebase/firestore";
 import { db } from "../firebase/config";
 import { getLogin } from "../redux/auth/selectors";
@@ -57,6 +58,9 @@ const CommentsScreen = ({ navigation, route }) => {
       const docRef = await addDoc(collection(db, "posts", postId, "comments"), {
         comment: comment,
         login: login,
+      });
+      await updateDoc(doc(db, "posts", postId), {
+        totalComments: increment(1),
       });
       console.log("Document written with ID: ", docRef.id);
     } catch (error) {

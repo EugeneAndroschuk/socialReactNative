@@ -11,10 +11,15 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   TouchableWithoutFeedback,
+  PermissionsAndroid,
 } from "react-native";
+import * as ImagePicker from "expo-image-picker";
 import SvgAddProfilePhoto from "../assets/images/Svg/SvgAddProfilePhoto";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { authSignUpUser } from "../redux/auth/authOperations";
+import { useEffect } from "react";
+import { getLogin } from "../redux/auth/selectors";
+import { onLoadUserAvatar } from "../servises/userServises";
 
 const initialFormData = {
   login: "",
@@ -29,6 +34,9 @@ const RegistrationScreen = ({ navigation }) => {
   const [isFocusLoginInput, setIsFocusLoginInput] = useState(false);
   const [isFocusEmailInput, setIsFocusEmailInput] = useState(false);
   const [isFocusPasswordInput, setIsFocusPasswordInput] = useState(false);
+  const [userAvatar, setUserAvatar] = useState(null);
+  const [isUser, setIsUser] = useState(false);
+  const login = useSelector(getLogin);
   const dispatch = useDispatch();
 
   const keyboardHide = () => {
@@ -49,7 +57,7 @@ const RegistrationScreen = ({ navigation }) => {
   };
 
   const onFormSubmit = () => {
-    dispatch(authSignUpUser(formData));
+    dispatch(authSignUpUser(formData, userAvatar));
     setFormData(initialFormData);
   };
 
@@ -77,6 +85,28 @@ const RegistrationScreen = ({ navigation }) => {
     setIsFocusPasswordInput(true);
   };
 
+  // const onLoadImage = async () => {
+  //   // No permissions request is necessary for launching the image library
+  //   let result = await ImagePicker.launchImageLibraryAsync({
+  //     mediaTypes: ImagePicker.MediaTypeOptions.All,
+  //     allowsEditing: true,
+  //     aspect: [4, 3],
+  //     quality: 1,
+  //   });
+
+  //   if (!result.canceled) {
+  //     setUserAvatar(result.assets[0].uri);
+  //   }
+  // };
+
+  const onPressProfilePhoto = () => {
+    onLoadUserAvatar().then((res) => {
+      console.log(res);
+      setUserAvatar(res);
+    });
+  };
+
+
   return (
     <TouchableWithoutFeedback onPress={keyboardHide}>
       <View style={styles.container}>
@@ -90,13 +120,23 @@ const RegistrationScreen = ({ navigation }) => {
         />
         <KeyboardAvoidingView behavior={Platform.OS == "ios" ? "padding" : ""}>
           <View style={styles.formWrap}>
+            {/* <TouchableOpacity onPress={onLoadImage} style={styles.addBtn}>
+              <SvgAddProfilePhoto />
+            </TouchableOpacity> */}
             <View
               style={{
                 ...styles.photoProfile,
                 left: detectPositionPhotoProfile(),
               }}
             >
-              <SvgAddProfilePhoto style={styles.addBtn} />
+              <TouchableOpacity
+                activeOpacity={0.9}
+                onPress={onPressProfilePhoto}
+                style={styles.addBtn}
+              >
+                <SvgAddProfilePhoto />
+              </TouchableOpacity>
+              <Image source={{ uri: userAvatar }} style={styles.avatar} />
             </View>
             <View style={styles.form}>
               <View style={styles.formTitle}>
@@ -217,10 +257,19 @@ const styles = StyleSheet.create({
     backgroundColor: "#F6F6F6",
   },
 
+  avatar: {
+    width: 120,
+    height: 120,
+    borderRadius: 16,
+  },
+
   addBtn: {
     position: "absolute",
-    top: 81,
-    left: 107,
+    // top: 81,
+    // left: 107,
+    // top: 81,
+    // left: 10,
+    zIndex: 2,
     borderRadius: 25,
     color: "#fff",
   },

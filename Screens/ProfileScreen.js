@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   StyleSheet,
   Text,
@@ -16,15 +16,25 @@ import SvgLike from "../assets/images/Svg/SvgLike";
 import SvgMapPin from "../assets/images/Svg/SvgMapPin";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { useSelector, useDispatch } from "react-redux";
-import { getUserId } from "../redux/auth/selectors";
+import { getUserId, getLogin, getAvatarUrl } from "../redux/auth/selectors";
 import { db } from "../firebase/config";
 import { signOutUser } from "../redux/auth/authSlice";
+import { onLoadUserAvatar, updateUserProfile, createUserProfile } from "../servises/userServises";
 
 const ProfileScreen = ({ navigation }) => {
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
   const [posts, setPosts] = useState([]);
+  const [userAvatar, setUserAvatar] = useState(null);
   const userId = useSelector(getUserId);
+  const login = useSelector(getLogin);
+  const avatarUrl = useSelector(getAvatarUrl);
   const dispatch = useDispatch();
+  const isFirstRender = useRef(true);
+
+  useEffect(() => {
+    if (isFirstRender.current === true) { isFirstRender.current = false;  return}
+    updateUserProfile(userId, userAvatar);
+  },[userAvatar]);
 
   const getUserPostsFromFirestore = async () => {
     try {
@@ -59,6 +69,13 @@ const ProfileScreen = ({ navigation }) => {
     return screenWidth / 2 - 60;
   };
 
+  const onPressProfilePhoto = () => {
+    onLoadUserAvatar().then(res => {
+      console.log(res)
+      setUserAvatar(res)
+    })
+  }
+
   return (
     <View style={styles.container}>
       <Image
@@ -77,15 +94,30 @@ const ProfileScreen = ({ navigation }) => {
             left: detectPositionPhotoProfile(),
           }}
         >
-          <SvgRemoveProfilePhoto style={styles.addBtn} />
+          {(userAvatar !== null || avatarUrl !== null) && 
+              <Image
+                source={{ uri: userAvatar === null ? avatarUrl : userAvatar }}
+                style={styles.avatar}
+              />
+            }
+
+          {/* <Image
+            source={{ uri: userAvatar }}
+            style={styles.avatar}
+          /> */}
+
+          <SvgRemoveProfilePhoto
+            style={styles.addBtn}
+            onPress={onPressProfilePhoto}
+          />
         </View>
         <SvgLogOut style={styles.svgLogOut} onPress={onLogOut} />
         <View style={styles.formTitle}>
-          <Text style={styles.userName}>Natali Romanova</Text>
+          <Text style={styles.userName}>{login}</Text>
         </View>
-
         <View style={styles.form}>
           <FlatList
+            style={{ height: Dimensions.get("window").height - 390 }}
             data={posts}
             keyExtractor={(item, indx) => indx.toString()}
             renderItem={({ item }) => (
@@ -97,8 +129,14 @@ const ProfileScreen = ({ navigation }) => {
 
                 <View style={styles.data}>
                   <View style={styles.feedback}>
-                    <SvgComment style={{ marginRight: 9 }} />
-                    <Text style={{ marginRight: 27 }}>8</Text>
+                    <SvgComment
+                      style={{ marginRight: 9 }}
+                      fill={item.totalComments === 0 ? "none" : "#FF6C00"}
+                      stroke={item.totalComments === 0 ? "#BDBDBD" : "#FF6C00"}
+                    />
+                    <Text style={{ marginRight: 27 }}>
+                      {item.totalComments}
+                    </Text>
                     <SvgLike style={{ marginRight: 10 }} />
                     <Text>153</Text>
                   </View>
@@ -133,7 +171,6 @@ const styles = StyleSheet.create({
   },
 
   formWrap: {
-    // display: "none",
     borderTopLeftRadius: 25,
     borderTopRightRadius: 25,
     backgroundColor: "#fff",
@@ -148,10 +185,18 @@ const styles = StyleSheet.create({
     backgroundColor: "#F6F6F6",
   },
 
+  avatar: {
+    width: 120,
+    height: 120,
+    borderRadius: 16,
+  },
+
   addBtn: {
     position: "absolute",
-    top: 75,
-    left: 101,
+    // top: 75,
+    // left: 101,
+    top: 0,
+    left: 0,
     borderRadius: 25,
     color: "#fff",
   },
@@ -169,12 +214,11 @@ const styles = StyleSheet.create({
 
   formTitle: {
     alignItems: "center",
-    marginBottom: 33,
+    marginTop: 92,
+    marginBottom: 32,
   },
 
   userName: {
-    marginTop: 92,
-    marginBottom: 33,
     fontFamily: "Roboto-Medium-500",
     fontSize: 30,
     lineHeight: 35,
@@ -182,7 +226,7 @@ const styles = StyleSheet.create({
   },
 
   post: {
-    marginBottom: 46,
+    marginBottom: 35,
   },
 
   photoWrap: {
@@ -206,6 +250,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 19,
     color: "#212121",
+    marginBottom: 11,
   },
 
   data: {

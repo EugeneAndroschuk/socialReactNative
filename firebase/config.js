@@ -6,13 +6,13 @@ import { getStorage } from "firebase/storage";
 import { initializeApp } from "firebase/app";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBX2a6T1pv7F4n_sv84KnDEytIXEhjYZsw",
-  authDomain: "social-41e1f.firebaseapp.com",
-  databaseURL: "https://social-41e1f.firebaseio.com",
-  projectId: "social-41e1f",
-  storageBucket: "social-41e1f.appspot.com",
+  apiKey: "AIzaSyD3U1pthrKMdUVdnuu1mcUMwRW-qvJLTJU",
+  authDomain: "social-rn-25894.firebaseapp.com",
+  databaseURL: "https://social-rn-25894.firebaseio.com",
+  projectId: "social-rn-25894",
+  storageBucket: "social-rn-25894.appspot.com",
   messagingSenderId: "sender-id",
-  appId: "431100237283",
+  appId: "240839655940",
   measurementId: "G-measurement-id",
 };
 

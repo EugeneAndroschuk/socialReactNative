@@ -11,21 +11,27 @@ import SvgLogOut from "../assets/images/Svg/SvgLogOut";
 import SvgComment from "../assets/images/Svg/SvgComment";
 import SvgMapPin from "../assets/images/Svg/SvgMapPin";
 import { useState, useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { signOutUser } from "../redux/auth/authSlice";
 import { collection, getDocs } from "firebase/firestore"; 
 import { db } from "../firebase/config";
+import { getLogin, getEmail, getAvatarUrl } from "../redux/auth/selectors";
 
 const PostsScreen = ({ navigation, route }) => {
   const [posts, setPosts] = useState([]);
   const dispatch = useDispatch();
+  const login = useSelector(getLogin);
+  const email = useSelector(getEmail);
+  const avatarUrl = useSelector(getAvatarUrl);
 
   const getDataFromFirestore = async () => {
     try {
       const snapshot = await getDocs(collection(db, "posts"));
+      
       const snapshotPosts = [];
       snapshot.forEach((doc) => snapshotPosts.push({ ...doc.data(), id: doc.id }));
       setPosts(snapshotPosts);
+
     } catch (error) {
       console.log(error);
       throw error;
@@ -57,16 +63,19 @@ const PostsScreen = ({ navigation, route }) => {
 
       <View style={styles.posts}>
         <View style={styles.user}>
-          <View style={styles.userPhoto}></View>
+          <View style={styles.userPhoto}>
+            <Image source={{ uri: avatarUrl }} style={styles.avatar} />
+          </View>
           <View style={styles.userTitle}>
-            <Text style={styles.userName}>Natali Romanova</Text>
-            <Text style={styles.userEmail}>email@example.com</Text>
+            <Text style={styles.userName}>{login}</Text>
+            <Text style={styles.userEmail}>{email}</Text>
           </View>
         </View>
       </View>
 
       <View style={styles.form}>
         <FlatList
+          style={{ height: Dimensions.get("window").height - 265 }}
           data={posts}
           keyExtractor={(item, indx) => indx.toString()}
           renderItem={({ item }) => (
@@ -81,8 +90,10 @@ const PostsScreen = ({ navigation, route }) => {
                   <SvgComment
                     onPress={() => onOpenComments(item.id, item.photoUrl)}
                     style={{ marginRight: 9 }}
+                    fill={item.totalComments === 0 ? "none" : "#FF6C00"}
+                    stroke={item.totalComments === 0 ? "#BDBDBD" : "#FF6C00"}
                   />
-                  <Text style={{ marginRight: 27 }}>8</Text>
+                  <Text style={{ marginRight: 27 }}>{item.totalComments}</Text>
                 </View>
 
                 <View style={styles.location}>
@@ -112,9 +123,6 @@ const styles = StyleSheet.create({
 
   title: {
     alignItems: "center",
-    // borderBottomColor: "#000000",
-    // elevation: 2,
-    //   shadowColor: "#000000",
     borderStyle: "solid",
     borderBottomWidth: 2,
     borderColor: "rgba(0, 0, 0, 0.3)",
@@ -157,6 +165,12 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
 
+  avatar: {
+    width: 60,
+    height: 60,
+    borderRadius: 16,
+  },
+
   userName: {
     fontFamily: "Roboto-Bold-700",
     fontSize: 13,
@@ -172,13 +186,12 @@ const styles = StyleSheet.create({
   },
 
   form: {
-    height: 480,
     marginHorizontal: 16,
     marginTop: 32,
   },
 
   post: {
-    // marginTop: 35,
+    marginBottom: 35,
   },
 
   photoWrap: {

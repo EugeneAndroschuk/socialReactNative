@@ -46,6 +46,7 @@ const CreatePostsScreen = ({ navigation }) => {
           location,
           title: formData.photoTitle,
           local: formData.photoLocation,
+          totalComments: 0,
           userId,
         });
         console.log("Document written with ID: ", docRef.id);
@@ -153,7 +154,33 @@ const CreatePostsScreen = ({ navigation }) => {
 
         <View style={styles.form}>
           <View style={styles.cameraWrap}>
-            <Camera style={styles.camera} ref={(ref) => setCameraRef(ref)}>
+            {isPhoto ? (
+              <Image
+                source={{ uri: currentPhoto }}
+                style={{
+                  ...styles.photoWrap,
+                  width: Dimensions.get("window").width - 32,
+                }}
+              />
+            ) : (
+              <Camera
+                style={styles.camera}
+                ref={(ref) => setCameraRef(ref)}
+              ></Camera>
+            )}
+
+            <TouchableOpacity
+              activeOpacity={0.9}
+              style={{
+                ...styles.snapWrap,
+                left: leftPositionSnapWrap,
+              }}
+              onPress={takePhoto}
+            >
+              <SvgCamera />
+            </TouchableOpacity>
+
+            {/* <Camera style={styles.camera} ref={(ref) => setCameraRef(ref)}>
               <View style={styles.photoWrap}>
                 {isPhoto && (
                   <>
@@ -192,7 +219,7 @@ const CreatePostsScreen = ({ navigation }) => {
                   <SvgCamera />
                 </TouchableOpacity>
               )}
-            </Camera>
+            </Camera> */}
           </View>
 
           <Text style={styles.photoUploadText} onPress={onPressEditPhoto}>
@@ -289,13 +316,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
   },
 
-  // height: "70%",
-  // marginHorizontal: 2,
-  // marginTop: 40,
-  // borderRadius: 10,
-  // alignItems: "center",
-  // justifyContent: "flex-end",
-
   cameraWrap: {
     height: 240,
     backgroundColor: "#F6F6F6",
@@ -310,10 +330,7 @@ const styles = StyleSheet.create({
   },
 
   photoWrap: {
-    // position: "absolute",
-    // top: 0,
-    // left: 0,
-    // borderColor: "#fff",
+    height: 240,
     borderWidth: 1,
     borderRadius: 8,
   },
