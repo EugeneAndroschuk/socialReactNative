@@ -7,6 +7,8 @@ import {
   TouchableOpacity,
   Dimensions,
   FlatList,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from "react-native";
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
@@ -20,7 +22,7 @@ import {
   increment,
 } from "firebase/firestore";
 import { db } from "../firebase/config";
-import { getLogin } from "../redux/auth/selectors";
+import { getLogin, getAvatarUrl } from "../redux/auth/selectors";
 
 import SvgArrowLeft from "../assets/images/Svg/SvgArrowLeft";
 import SvgArrowUp from "../assets/images/Svg/SvgArrowUp";
@@ -28,9 +30,13 @@ import SvgArrowUp from "../assets/images/Svg/SvgArrowUp";
 const CommentsScreen = ({ navigation, route }) => {
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState([]);
+  const [isShowKeyboard, setIsShowKeyboard] = useState(false);
   const login = useSelector(getLogin);
   const postId = route.params.id;
   const photoUrl = route.params.url;
+  const avatarUrl = useSelector(getAvatarUrl);
+  const DEFAULT_AVATAR_URL =
+    "https://firebasestorage.googleapis.com/v0/b/social-rn-25894.appspot.com/o/userAvatar%2Favatar-1x.jpg?alt=media&token=https://firebasestorage.googleapis.com/v0/b/social-rn-25894.appspot.com/o/userAvatar%2Favatar-1x.jpg?alt=media&token=33020311-3b34-4b46-ba27-3a72f9d6f6ef";
 
   const getCommentsFromFirestore = async () => {
     try {
@@ -53,99 +59,110 @@ const CommentsScreen = ({ navigation, route }) => {
     getCommentsFromFirestore();
   }, [comments]);
 
-  const updateDataInFirestore = async () => {
+  const updateDataInFirestore = async (avatarUrl) => {
     try {
       const docRef = await addDoc(collection(db, "posts", postId, "comments"), {
         comment: comment,
         login: login,
+        avatarUrl: avatarUrl,
       });
       await updateDoc(doc(db, "posts", postId), {
         totalComments: increment(1),
       });
-      console.log("Document written with ID: ", docRef.id);
     } catch (error) {
       console.log(error);
     }
   };
 
   const onMakeComment = () => {
-    updateDataInFirestore();
+    const avatar = avatarUrl === null ? DEFAULT_AVATAR_URL : avatarUrl;
+    updateDataInFirestore(avatar);
     setComment("");
+    keyboardHide();
   };
 
   const onHandleInputComment = (value) => {
     setComment(value);
   };
 
+  const keyboardHide = () => {
+    Keyboard.dismiss();
+    setIsShowKeyboard(false);
+  };
+
   return (
-    <View style={styles.container}>
-      <View style={styles.title}>
-        <Text style={styles.titleText}>Комментарии</Text>
-        <TouchableOpacity
-          style={styles.svgArrowLeft}
-          onPress={() => navigation.navigate("Posts")}
-        >
-          <SvgArrowLeft />
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.photoWrap}>
-        <Image
-          style={styles.photo}
-          source={{uri: photoUrl}}
-        />
-      </View>
-
-      <View style={styles.comment}>
-        <FlatList
-          data={comments}
-          keyExtractor={(item, indx) => indx.toString()}
-          renderItem={({ item, index }) => (
-            <View style={{...styles.comments, flexDirection: index % 2 === 0 ? 'row' : 'row-reverse'}}>
-              <View style={styles.avatar}>
-                <Image
-                  style={styles.avatarImage}
-                  source={require("../assets/images/avatar-1x.jpg")}
-                />
-              </View>
-              <View
-                style={{
-                  width: 299,
-                  backgroundColor: "rgba(0, 0, 0, 0.03)",
-                  paddingTop: 16,
-                  paddingRight: 16,
-                  paddingBottom: 35,
-                  paddingLeft: 16,
-                }}
-              >
-                <Text style={styles.commentsText}>{item.comment}</Text>
-                <Text style={{ ...styles.commentsTime, right: 16 }}>
-                  09 июня, 2020 | 08:40
-                </Text>
-              </View>
-            </View>
-          )}
-        />
-      </View>
-
-      <View style={{ ...styles.form, width: Dimensions.get("window").width }}>
-        <View style={styles.inputWrap}>
-          <TextInput
-            style={styles.input}
-            value={comment}
-            placeholder="Комментировать..."
-            placeholderTextColor="rgba(189, 189, 189, 1)"
-            onChangeText={onHandleInputComment}
-          />
+    <TouchableWithoutFeedback onPress={keyboardHide}>
+      <View style={styles.container}>
+        <View style={styles.title}>
+          <Text style={styles.titleText}>Комментарии</Text>
           <TouchableOpacity
-            onPress={onMakeComment}
-            style={styles.btnSendComment}
+            style={styles.svgArrowLeft}
+            onPress={() => navigation.navigate("Posts")}
           >
-            <SvgArrowUp />
+            <SvgArrowLeft />
           </TouchableOpacity>
         </View>
+
+        <View style={styles.photoWrap}>
+          <Image style={styles.photo} source={{ uri: photoUrl }} />
+        </View>
+
+        <View style={styles.comment}>
+          <FlatList
+            data={comments}
+            keyExtractor={(item, indx) => indx.toString()}
+            renderItem={({ item, index }) => (
+              <View
+                style={{
+                  ...styles.comments,
+                  flexDirection: index % 2 === 0 ? "row" : "row-reverse",
+                }}
+              >
+                <View style={styles.avatar}>
+                  <Image
+                    style={styles.avatarImage}
+                    source={{uri: item.avatarUrl }}
+                  />
+                </View>
+                <View
+                  style={{
+                    width: 299,
+                    backgroundColor: "rgba(0, 0, 0, 0.03)",
+                    paddingTop: 16,
+                    paddingRight: 16,
+                    paddingBottom: 35,
+                    paddingLeft: 16,
+                  }}
+                >
+                  <Text style={styles.commentsText}>{item.comment}</Text>
+                  <Text style={{ ...styles.commentsTime, right: 16 }}>
+                    09 июня, 2020 | 08:40
+                  </Text>
+                </View>
+              </View>
+            )}
+          />
+        </View>
+
+        <View style={{ ...styles.form, width: Dimensions.get("window").width }}>
+          <View style={styles.inputWrap}>
+            <TextInput
+              style={styles.input}
+              value={comment}
+              placeholder="Комментировать..."
+              placeholderTextColor="rgba(189, 189, 189, 1)"
+              onChangeText={onHandleInputComment}
+            />
+            <TouchableOpacity
+              onPress={onMakeComment}
+              style={styles.btnSendComment}
+            >
+              <SvgArrowUp />
+            </TouchableOpacity>
+          </View>
+        </View>
       </View>
-    </View>
+    </TouchableWithoutFeedback>
   );
 };
 

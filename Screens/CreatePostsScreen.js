@@ -7,6 +7,7 @@ import {
   Dimensions,
   Keyboard,
   TouchableWithoutFeedback,
+  KeyboardAvoidingView,
   Image,
 } from "react-native";
 import * as Location from "expo-location";
@@ -151,123 +152,82 @@ const CreatePostsScreen = ({ navigation }) => {
             <SvgArrowLeft />
           </TouchableOpacity>
         </View>
+        <KeyboardAvoidingView behavior={Platform.OS == "ios" ? "padding" : ""}>
+          <View style={styles.form}>
+            <View style={styles.cameraWrap}>
+              {isPhoto ? (
+                <Image
+                  source={{ uri: currentPhoto }}
+                  style={{
+                    ...styles.photoWrap,
+                    width: Dimensions.get("window").width - 32,
+                  }}
+                />
+              ) : (
+                <Camera
+                  style={styles.camera}
+                  ref={(ref) => setCameraRef(ref)}
+                ></Camera>
+              )}
 
-        <View style={styles.form}>
-          <View style={styles.cameraWrap}>
-            {isPhoto ? (
-              <Image
-                source={{ uri: currentPhoto }}
+              <TouchableOpacity
+                activeOpacity={0.9}
                 style={{
-                  ...styles.photoWrap,
-                  width: Dimensions.get("window").width - 32,
+                  ...styles.snapWrap,
+                  left: leftPositionSnapWrap,
                 }}
+                onPress={takePhoto}
+              >
+                <SvgCamera />
+              </TouchableOpacity>
+            </View>
+
+            <Text style={styles.photoUploadText} onPress={onPressEditPhoto}>
+              {isPhoto ? "Редагувати фото" : "Завантажте фото"}
+            </Text>
+
+            <TextInput
+              style={styles.input}
+              value={formData.photoTitle}
+              placeholder="Назва..."
+              placeholderTextColor="rgba(189, 189, 189, 1)"
+              onFocus={() => setIsShowKeyboard(true)}
+              onBlur={() => setIsShowKeyboard(false)}
+              onChangeText={onHandleInputPhotoTitle}
+            />
+
+            <View>
+              <TextInput
+                style={{ ...styles.input, paddingLeft: 28 }}
+                value={formData.photoLocation}
+                placeholder="Місцевість..."
+                placeholderTextColor="rgba(189, 189, 189, 1)"
+                onFocus={() => setIsShowKeyboard(true)}
+                onBlur={() => setIsShowKeyboard(false)}
+                onChangeText={onHandleInputPhotoLocation}
               />
-            ) : (
-              <Camera
-                style={styles.camera}
-                ref={(ref) => setCameraRef(ref)}
-              ></Camera>
-            )}
+              <SvgMapPin style={styles.svgMapPin} />
+            </View>
 
             <TouchableOpacity
               activeOpacity={0.9}
               style={{
-                ...styles.snapWrap,
-                left: leftPositionSnapWrap,
+                ...styles.btnPublicate,
+                backgroundColor: isPhoto ? "#FF6C00" : "#F6F6F6",
               }}
-              onPress={takePhoto}
+              onPress={onPressPublicate}
             >
-              <SvgCamera />
+              <Text
+                style={{
+                  ...styles.btnPublicateText,
+                  color: isPhoto ? "#FFFFFF" : "#BDBDBD",
+                }}
+              >
+                Опублікувати
+              </Text>
             </TouchableOpacity>
-
-            {/* <Camera style={styles.camera} ref={(ref) => setCameraRef(ref)}>
-              <View style={styles.photoWrap}>
-                {isPhoto && (
-                  <>
-                    <TouchableOpacity
-                      activeOpacity={0.9}
-                      style={{
-                        ...styles.snapWrap,
-                        left: leftPositionSnapWrap,
-                      }}
-                      onPress={takePhoto}
-                    >
-                      <SvgCamera />
-                    </TouchableOpacity>
-                    <Image
-                      source={{ uri: currentPhoto }}
-                      style={{
-                        width: 343,
-                        height: 240,
-                        zIndex: 1,
-                        // borderColor: "red",
-                        // borderWidth: 2,
-                      }}
-                    />
-                  </>
-                )}
-              </View>
-              {!isPhoto && (
-                <TouchableOpacity
-                  activeOpacity={0.9}
-                  style={{
-                    ...styles.snapWrap,
-                    left: leftPositionSnapWrap,
-                  }}
-                  onPress={takePhoto}
-                >
-                  <SvgCamera />
-                </TouchableOpacity>
-              )}
-            </Camera> */}
           </View>
-
-          <Text style={styles.photoUploadText} onPress={onPressEditPhoto}>
-            {isPhoto ? "Редагувати фото" : "Завантажте фото"}
-          </Text>
-
-          <TextInput
-            style={styles.input}
-            value={formData.photoTitle}
-            placeholder="Назва..."
-            placeholderTextColor="rgba(189, 189, 189, 1)"
-            onFocus={() => setIsShowKeyboard(true)}
-            onBlur={() => setIsShowKeyboard(false)}
-            onChangeText={onHandleInputPhotoTitle}
-          />
-
-          <View>
-            <TextInput
-              style={{ ...styles.input, paddingLeft: 28 }}
-              value={formData.photoLocation}
-              placeholder="Місцевість..."
-              placeholderTextColor="rgba(189, 189, 189, 1)"
-              onFocus={() => setIsShowKeyboard(true)}
-              onBlur={() => setIsShowKeyboard(false)}
-              onChangeText={onHandleInputPhotoLocation}
-            />
-            <SvgMapPin style={styles.svgMapPin} />
-          </View>
-
-          <TouchableOpacity
-            activeOpacity={0.9}
-            style={{
-              ...styles.btnPublicate,
-              backgroundColor: isPhoto ? "#FF6C00" : "#F6F6F6",
-            }}
-            onPress={onPressPublicate}
-          >
-            <Text
-              style={{
-                ...styles.btnPublicateText,
-                color: isPhoto ? "#FFFFFF" : "#BDBDBD",
-              }}
-            >
-              Опублікувати
-            </Text>
-          </TouchableOpacity>
-        </View>
-
+        </KeyboardAvoidingView>
         <View
           style={{ ...styles.tabBar, width: Dimensions.get("window").width }}
         >
