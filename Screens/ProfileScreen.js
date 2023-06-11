@@ -18,8 +18,9 @@ import { collection, query, where, getDocs } from "firebase/firestore";
 import { useSelector, useDispatch } from "react-redux";
 import { getUserId, getLogin, getAvatarUrl } from "../redux/auth/selectors";
 import { db } from "../firebase/config";
-import { signOutUser } from "../redux/auth/authSlice";
+import { signOutUser, updateAvatar } from "../redux/auth/authSlice";
 import { onLoadUserAvatar, updateUserProfile, createUserProfile } from "../servises/userServises";
+import { TouchableOpacity } from "react-native";
 
 const ProfileScreen = ({ navigation }) => {
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
@@ -34,6 +35,7 @@ const ProfileScreen = ({ navigation }) => {
   useEffect(() => {
     if (isFirstRender.current === true) { isFirstRender.current = false;  return}
     updateUserProfile(userId, userAvatar);
+    dispatch(updateAvatar({ avatarUrl: userAvatar }));
   },[userAvatar]);
 
   const getUserPostsFromFirestore = async () => {
@@ -59,21 +61,23 @@ const ProfileScreen = ({ navigation }) => {
     dispatch(signOutUser());
   };
 
-  const keyboardHide = () => {
-    Keyboard.dismiss();
-    setIsShowKeyboard(false);
-  };
-
   const detectPositionPhotoProfile = () => {
     const screenWidth = Dimensions.get("window").width;
     return screenWidth / 2 - 60;
   };
 
+  const detectPositionAddPhotoProfileBtn = () => {
+    const screenWidth = Dimensions.get("window").width;
+    return screenWidth / 2 - 60 - 12;
+  };
+
   const onPressProfilePhoto = () => {
-    onLoadUserAvatar().then(res => {
-      console.log(res)
-      setUserAvatar(res)
-    })
+    if (userAvatar || avatarUrl) {
+      setUserAvatar(null);
+      dispatch(updateAvatar({ avatarUrl : null}));
+      return;
+    }
+    onLoadUserAvatar().then(res => setUserAvatar(res))
   }
 
   return (
@@ -88,28 +92,32 @@ const ProfileScreen = ({ navigation }) => {
       />
 
       <View style={styles.formWrap}>
+        <TouchableOpacity
+          style={{
+            ...styles.addBtn,
+            right: detectPositionAddPhotoProfileBtn(),
+          }}
+          onPress={onPressProfilePhoto}
+        >
+          {userAvatar || avatarUrl ? <SvgRemoveProfilePhoto /> : <SvgAddProfilePhoto />}
+        </TouchableOpacity>
         <View
           style={{
             ...styles.photoProfile,
             left: detectPositionPhotoProfile(),
           }}
         >
-          {(userAvatar !== null || avatarUrl !== null) && 
-              <Image
-                source={{ uri: userAvatar === null ? avatarUrl : userAvatar }}
-                style={styles.avatar}
-              />
-            }
+          {(userAvatar !== null || avatarUrl !== null) && (
+            <Image
+              source={{ uri: userAvatar === null ? avatarUrl : userAvatar }}
+              style={styles.avatar}
+            />
+          )}
 
           {/* <Image
             source={{ uri: userAvatar }}
             style={styles.avatar}
           /> */}
-
-          <SvgRemoveProfilePhoto
-            style={styles.addBtn}
-            onPress={onPressProfilePhoto}
-          />
         </View>
         <SvgLogOut style={styles.svgLogOut} onPress={onLogOut} />
         <View style={styles.formTitle}>
@@ -193,12 +201,10 @@ const styles = StyleSheet.create({
 
   addBtn: {
     position: "absolute",
-    // top: 75,
-    // left: 101,
-    top: 0,
-    left: 0,
+    top: 21,
     borderRadius: 25,
     color: "#fff",
+    zIndex: 2,
   },
 
   svgLogOut: {

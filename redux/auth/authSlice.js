@@ -19,6 +19,10 @@ const authSlice = createSlice({
       email: action.payload.email,
       avatarUrl: action.payload.avatarUrl,
     }),
+    updateAvatar: (state, action) => ({
+      ...state,
+      avatarUrl: action.payload.avatarUrl,
+    }),
     authStateChange: (state, action) => ({
       ...state,
       stateChange: action.payload,
@@ -32,4 +36,5 @@ const authSlice = createSlice({
 });
 
 export default authSlice;
-export const { updateUser, authStateChange, signOutUser } = authSlice.actions;
+export const { updateUser, authStateChange, signOutUser, updateAvatar } =
+  authSlice.actions;

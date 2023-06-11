@@ -15,10 +15,11 @@ import {
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import SvgAddProfilePhoto from "../assets/images/Svg/SvgAddProfilePhoto";
+import SvgRemoveProfilePhoto from "../assets/images/Svg/SvgRemoveProfilePhoto";
 import { useDispatch, useSelector } from "react-redux";
 import { authSignUpUser } from "../redux/auth/authOperations";
 import { useEffect } from "react";
-import { getLogin } from "../redux/auth/selectors";
+import { getAvatarUrl, getLogin } from "../redux/auth/selectors";
 import { onLoadUserAvatar } from "../servises/userServises";
 
 const initialFormData = {
@@ -66,6 +67,11 @@ const RegistrationScreen = ({ navigation }) => {
     return screenWidth / 2 - 60;
   };
 
+  const detectPositionAddPhotoProfileBtn = () => {
+    const screenWidth = Dimensions.get("window").width;
+    return screenWidth / 2 - 60 - 12;
+  };
+
   const onShowPassword = () => {
     setIsShowPassword((prev) => !prev);
   };
@@ -85,27 +91,12 @@ const RegistrationScreen = ({ navigation }) => {
     setIsFocusPasswordInput(true);
   };
 
-  // const onLoadImage = async () => {
-  //   // No permissions request is necessary for launching the image library
-  //   let result = await ImagePicker.launchImageLibraryAsync({
-  //     mediaTypes: ImagePicker.MediaTypeOptions.All,
-  //     allowsEditing: true,
-  //     aspect: [4, 3],
-  //     quality: 1,
-  //   });
-
-  //   if (!result.canceled) {
-  //     setUserAvatar(result.assets[0].uri);
-  //   }
-  // };
-
   const onPressProfilePhoto = () => {
+    if (userAvatar) { setUserAvatar(null); return; }
     onLoadUserAvatar().then((res) => {
-      console.log(res);
       setUserAvatar(res);
     });
   };
-
 
   return (
     <TouchableWithoutFeedback onPress={keyboardHide}>
@@ -120,24 +111,26 @@ const RegistrationScreen = ({ navigation }) => {
         />
         <KeyboardAvoidingView behavior={Platform.OS == "ios" ? "padding" : ""}>
           <View style={styles.formWrap}>
-            {/* <TouchableOpacity onPress={onLoadImage} style={styles.addBtn}>
-              <SvgAddProfilePhoto />
-            </TouchableOpacity> */}
+            <TouchableOpacity
+              activeOpacity={0.9}
+              onPress={onPressProfilePhoto}
+              style={{
+                ...styles.addBtn,
+                right: detectPositionAddPhotoProfileBtn(),
+              }}
+            >
+              {userAvatar ? <SvgRemoveProfilePhoto/> : <SvgAddProfilePhoto />}
+            </TouchableOpacity>
+
             <View
               style={{
                 ...styles.photoProfile,
                 left: detectPositionPhotoProfile(),
               }}
             >
-              <TouchableOpacity
-                activeOpacity={0.9}
-                onPress={onPressProfilePhoto}
-                style={styles.addBtn}
-              >
-                <SvgAddProfilePhoto />
-              </TouchableOpacity>
               <Image source={{ uri: userAvatar }} style={styles.avatar} />
             </View>
+
             <View style={styles.form}>
               <View style={styles.formTitle}>
                 <Text style={styles.titleText}>Реєстрація</Text>
@@ -247,10 +240,18 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
 
+  // photoProfileWrap: {
+  //   position: "absolute",
+  //   top: -60,
+  //   width: 150,
+  //   height: 120,
+  //   backgroundColor: "green",
+  //   alignItems: 'center',
+  // },
+
   photoProfile: {
     position: "absolute",
     top: -60,
-    // left: 120,
     width: 120,
     height: 120,
     borderRadius: 16,
@@ -265,11 +266,11 @@ const styles = StyleSheet.create({
 
   addBtn: {
     position: "absolute",
-    // top: 81,
-    // left: 107,
+    top: 21,
+    // right: 3,
     // top: 81,
     // left: 10,
-    zIndex: 2,
+    zIndex: 3,
     borderRadius: 25,
     color: "#fff",
   },

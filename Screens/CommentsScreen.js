@@ -15,7 +15,6 @@ import { useSelector } from "react-redux";
 import {
   doc,
   addDoc,
-  setDoc,
   getDocs,
   collection,
   updateDoc,
@@ -23,6 +22,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../firebase/config";
 import { getLogin, getAvatarUrl } from "../redux/auth/selectors";
+import addLeadingZero from "../servises/AddeadingZero";
 
 import SvgArrowLeft from "../assets/images/Svg/SvgArrowLeft";
 import SvgArrowUp from "../assets/images/Svg/SvgArrowUp";
@@ -36,7 +36,7 @@ const CommentsScreen = ({ navigation, route }) => {
   const photoUrl = route.params.url;
   const avatarUrl = useSelector(getAvatarUrl);
   const DEFAULT_AVATAR_URL =
-    "https://firebasestorage.googleapis.com/v0/b/social-rn-25894.appspot.com/o/userAvatar%2Favatar-1x.jpg?alt=media&token=https://firebasestorage.googleapis.com/v0/b/social-rn-25894.appspot.com/o/userAvatar%2Favatar-1x.jpg?alt=media&token=33020311-3b34-4b46-ba27-3a72f9d6f6ef";
+    "https://firebasestorage.googleapis.com/v0/b/social-41e1f.appspot.com/o/postImage%2Favatar-1x.jpg?alt=media&token=1cfa9a3a-d191-4d1a-a65b-eb016016cdcc";
 
   const getCommentsFromFirestore = async () => {
     try {
@@ -47,7 +47,7 @@ const CommentsScreen = ({ navigation, route }) => {
       snapshot.forEach((doc) =>
         snapshotComments.push({ ...doc.data(), id: doc.id })
       );
-      // console.log(snapshotComments);
+      
       setComments(snapshotComments);
     } catch (error) {
       console.log(error);
@@ -59,12 +59,13 @@ const CommentsScreen = ({ navigation, route }) => {
     getCommentsFromFirestore();
   }, [comments]);
 
-  const updateDataInFirestore = async (avatarUrl) => {
+  const updateDataInFirestore = async (avatarUrl, timeStamp) => {
     try {
       const docRef = await addDoc(collection(db, "posts", postId, "comments"), {
         comment: comment,
         login: login,
         avatarUrl: avatarUrl,
+        timeStamp: timeStamp,
       });
       await updateDoc(doc(db, "posts", postId), {
         totalComments: increment(1),
@@ -76,7 +77,19 @@ const CommentsScreen = ({ navigation, route }) => {
 
   const onMakeComment = () => {
     const avatar = avatarUrl === null ? DEFAULT_AVATAR_URL : avatarUrl;
-    updateDataInFirestore(avatar);
+    
+    const date = new Date();
+    const options = {
+      month: "long",
+      day: "numeric",
+    };
+    const day = date.toLocaleDateString("uk-UA", options);
+    const year = date.getFullYear();
+    const hours = addLeadingZero(date.getHours().toString());
+    const minutes = addLeadingZero(date.getMinutes().toString());
+    const timeStamp = `${day}, ${year} | ${hours}:${minutes}`;
+    updateDataInFirestore(avatar, timeStamp);
+    
     setComment("");
     keyboardHide();
   };
@@ -94,7 +107,7 @@ const CommentsScreen = ({ navigation, route }) => {
     <TouchableWithoutFeedback onPress={keyboardHide}>
       <View style={styles.container}>
         <View style={styles.title}>
-          <Text style={styles.titleText}>Комментарии</Text>
+          <Text style={styles.titleText}>Коментарі</Text>
           <TouchableOpacity
             style={styles.svgArrowLeft}
             onPress={() => navigation.navigate("Posts")}
@@ -121,7 +134,7 @@ const CommentsScreen = ({ navigation, route }) => {
                 <View style={styles.avatar}>
                   <Image
                     style={styles.avatarImage}
-                    source={{uri: item.avatarUrl }}
+                    source={{ uri: item.avatarUrl }}
                   />
                 </View>
                 <View
@@ -135,9 +148,18 @@ const CommentsScreen = ({ navigation, route }) => {
                   }}
                 >
                   <Text style={styles.commentsText}>{item.comment}</Text>
-                  <Text style={{ ...styles.commentsTime, right: 16 }}>
-                    09 июня, 2020 | 08:40
-                  </Text>
+                  {index % 2 === 0 ? (
+                    <Text style={{ ...styles.commentsTime, right: 16 }}>
+                      {item.timeStamp}
+                    </Text>
+                  ) : (
+                    <Text style={{ ...styles.commentsTime, left: 16 }}>
+                      {item.timeStamp}
+                    </Text>
+                  )}
+                  {/* <Text style={{ ...styles.commentsTime, right: 16 }}>
+                    {item.timeStamp}
+                  </Text> */}
                 </View>
               </View>
             )}
@@ -149,7 +171,7 @@ const CommentsScreen = ({ navigation, route }) => {
             <TextInput
               style={styles.input}
               value={comment}
-              placeholder="Комментировать..."
+              placeholder="Коментувати..."
               placeholderTextColor="rgba(189, 189, 189, 1)"
               onChangeText={onHandleInputComment}
             />

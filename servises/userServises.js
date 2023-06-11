@@ -9,6 +9,8 @@ import {
 } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import * as ImagePicker from "expo-image-picker";
+import { useDispatch } from "react-redux";
+import { updateAvatar } from "../redux/auth/authSlice";
 
 export async function createUserProfile(userId, login, email, url) {
   try {
@@ -58,6 +60,8 @@ export async function updateUserProfile(userId, url) {
       await updateDoc(doc(db, "users", userId), {
         avatarUrl,
       });
+    
+    
 
       return avatarUrl;
   } catch (err) {

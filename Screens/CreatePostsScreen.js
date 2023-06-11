@@ -229,7 +229,7 @@ const CreatePostsScreen = ({ navigation }) => {
           </View>
         </KeyboardAvoidingView>
         <View
-          style={{ ...styles.tabBar, width: Dimensions.get("window").width }}
+          style={{ ...styles.tabBar, width: Dimensions.get("window").width, position: isShowKeyboard ? 'relative' : 'absolute'}}
         >
           <TouchableOpacity activeOpacity={0.9} style={styles.btn}>
             <SvgTrash />
@@ -371,7 +371,7 @@ const styles = StyleSheet.create({
   },
 
   tabBar: {
-    position: "absolute",
+    // position: "absolute",
     bottom: 0,
     left: 0,
 
@@ -382,6 +382,7 @@ const styles = StyleSheet.create({
   },
 
   btn: {
+    // position: 'relative',
     width: 70,
     height: 40,
     backgroundColor: "#F6F6F6",
