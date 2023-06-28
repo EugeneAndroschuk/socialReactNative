@@ -10,10 +10,17 @@ import {
 import SvgLogOut from "../assets/images/Svg/SvgLogOut";
 import SvgComment from "../assets/images/Svg/SvgComment";
 import SvgMapPin from "../assets/images/Svg/SvgMapPin";
+import SvgLike from "../assets/images/Svg/SvgLike";
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { signOutUser } from "../redux/auth/authSlice";
-import { collection, getDocs } from "firebase/firestore"; 
+import {
+  collection,
+  getDocs,
+  updateDoc,
+  doc,
+  increment,
+} from "firebase/firestore"; 
 import { db } from "../firebase/config";
 import { getLogin, getEmail, getAvatarUrl } from "../redux/auth/selectors";
 
@@ -54,6 +61,16 @@ const PostsScreen = ({ navigation, route }) => {
     navigation.navigate("Comments", {id, url});
   }
 
+  const onPressLike = async (postId) => {
+    try {
+      await updateDoc(doc(db, "posts", postId), {
+        totalLikes: increment(1),
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.title}>
@@ -93,7 +110,12 @@ const PostsScreen = ({ navigation, route }) => {
                     fill={item.totalComments === 0 ? "none" : "#FF6C00"}
                     stroke={item.totalComments === 0 ? "#BDBDBD" : "#FF6C00"}
                   />
-                  <Text style={{ marginRight: 27 }}>{item.totalComments}</Text>
+                  <Text style={{ marginRight: 12 }}>{item.totalComments}</Text>
+                  <SvgLike
+                    onPress={() => onPressLike(item.id)}
+                    style={{ marginRight: 9 }}
+                  />
+                  <Text>{item.totalLikes}</Text>
                 </View>
 
                 <View style={styles.location}>

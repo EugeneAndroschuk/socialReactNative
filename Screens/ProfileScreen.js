@@ -93,13 +93,17 @@ const ProfileScreen = ({ navigation }) => {
 
       <View style={styles.formWrap}>
         <TouchableOpacity
+          onPress={onPressProfilePhoto}
           style={{
             ...styles.addBtn,
             right: detectPositionAddPhotoProfileBtn(),
           }}
-          onPress={onPressProfilePhoto}
         >
-          {userAvatar || avatarUrl ? <SvgRemoveProfilePhoto /> : <SvgAddProfilePhoto />}
+          {userAvatar || avatarUrl ? (
+            <SvgRemoveProfilePhoto />
+          ) : (
+            <SvgAddProfilePhoto />
+          )}
         </TouchableOpacity>
         <View
           style={{
@@ -113,11 +117,6 @@ const ProfileScreen = ({ navigation }) => {
               style={styles.avatar}
             />
           )}
-
-          {/* <Image
-            source={{ uri: userAvatar }}
-            style={styles.avatar}
-          /> */}
         </View>
         <SvgLogOut style={styles.svgLogOut} onPress={onLogOut} />
         <View style={styles.formTitle}>
@@ -146,7 +145,7 @@ const ProfileScreen = ({ navigation }) => {
                       {item.totalComments}
                     </Text>
                     <SvgLike style={{ marginRight: 10 }} />
-                    <Text>153</Text>
+                    <Text>{item.totalLikes}</Text>
                   </View>
 
                   <View style={styles.location}>

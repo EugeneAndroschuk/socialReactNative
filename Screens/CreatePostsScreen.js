@@ -48,6 +48,7 @@ const CreatePostsScreen = ({ navigation }) => {
           title: formData.photoTitle,
           local: formData.photoLocation,
           totalComments: 0,
+          totalLikes: 0,
           userId,
         });
         console.log("Document written with ID: ", docRef.id);
