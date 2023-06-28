@@ -55,7 +55,7 @@ const ProfileScreen = ({ navigation }) => {
 
   useEffect(() => {
     getUserPostsFromFirestore();
-  }, [])
+  }, [posts])
   
   const onLogOut = () => {
     dispatch(signOutUser());
@@ -77,6 +77,7 @@ const ProfileScreen = ({ navigation }) => {
       dispatch(updateAvatar({ avatarUrl : null}));
       return;
     }
+    console.log("pressed add avatar");
     onLoadUserAvatar().then(res => setUserAvatar(res))
   }
 
@@ -145,7 +146,7 @@ const ProfileScreen = ({ navigation }) => {
                       {item.totalComments}
                     </Text>
                     <SvgLike style={{ marginRight: 10 }} />
-                    <Text>{item.totalLikes}</Text>
+                    <Text>{item.likes.length}</Text>
                   </View>
 
                   <View style={styles.location}>

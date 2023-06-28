@@ -20,9 +20,11 @@ import {
   updateDoc,
   doc,
   increment,
+  addDoc,
+  arrayUnion,
 } from "firebase/firestore"; 
 import { db } from "../firebase/config";
-import { getLogin, getEmail, getAvatarUrl } from "../redux/auth/selectors";
+import { getLogin, getEmail, getAvatarUrl, getUserId } from "../redux/auth/selectors";
 
 const PostsScreen = ({ navigation, route }) => {
   const [posts, setPosts] = useState([]);
@@ -30,6 +32,7 @@ const PostsScreen = ({ navigation, route }) => {
   const login = useSelector(getLogin);
   const email = useSelector(getEmail);
   const avatarUrl = useSelector(getAvatarUrl);
+  const userId = useSelector(getUserId);
 
   const getDataFromFirestore = async () => {
     try {
@@ -61,10 +64,12 @@ const PostsScreen = ({ navigation, route }) => {
     navigation.navigate("Comments", {id, url});
   }
 
-  const onPressLike = async (postId) => {
+  const onPressLike = async (postId, postUserId) => {
+    if (userId === postUserId) return;
+
     try {
       await updateDoc(doc(db, "posts", postId), {
-        totalLikes: increment(1),
+        likes: arrayUnion(userId),
       });
     } catch (error) {
       console.log(error);
@@ -92,7 +97,7 @@ const PostsScreen = ({ navigation, route }) => {
 
       <View style={styles.form}>
         <FlatList
-          style={{ height: Dimensions.get("window").height - 265 }}
+          style={{ height: Dimensions.get("window").height - 298 }}
           data={posts}
           keyExtractor={(item, indx) => indx.toString()}
           renderItem={({ item }) => (
@@ -112,10 +117,10 @@ const PostsScreen = ({ navigation, route }) => {
                   />
                   <Text style={{ marginRight: 12 }}>{item.totalComments}</Text>
                   <SvgLike
-                    onPress={() => onPressLike(item.id)}
+                    onPress={() => onPressLike(item.id, item.userId)}
                     style={{ marginRight: 9 }}
                   />
-                  <Text>{item.totalLikes}</Text>
+                  <Text>{item.likes.length}</Text>
                 </View>
 
                 <View style={styles.location}>

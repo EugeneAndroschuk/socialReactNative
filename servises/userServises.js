@@ -48,22 +48,23 @@ export async function createUserProfile(userId, login, email, url) {
 
 export async function updateUserProfile(userId, url) {
   try {
+    let newAvatarUrl;
     //uploading UserAvatar to Firebase
+    if (url) {
       const response = await fetch(url);
       const file = await response.blob();
       const uniqueAvatarId = Date.now().toString();
       const storageRef = ref(storage, `userAvatar/${uniqueAvatarId}`);
       await uploadBytes(storageRef, file);
-      const avatarUrl = await getDownloadURL(
+      newAvatarUrl = await getDownloadURL(
         ref(storage, `userAvatar/${uniqueAvatarId}`)
       );
+    } else newAvatarUrl = null;
       await updateDoc(doc(db, "users", userId), {
-        avatarUrl,
+        avatarUrl: newAvatarUrl,
       });
     
-    
-
-      return avatarUrl;
+      return newAvatarUrl;
   } catch (err) {
     console.error("Error adding document: ", err);
     throw err;

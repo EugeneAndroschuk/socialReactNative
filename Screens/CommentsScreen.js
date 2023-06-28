@@ -19,6 +19,9 @@ import {
   collection,
   updateDoc,
   increment,
+  serverTimestamp,
+  orderBy,
+  query,
 } from "firebase/firestore";
 import { db } from "../firebase/config";
 import { getLogin, getAvatarUrl } from "../redux/auth/selectors";
@@ -40,9 +43,11 @@ const CommentsScreen = ({ navigation, route }) => {
 
   const getCommentsFromFirestore = async () => {
     try {
-      const snapshot = await getDocs(
-        collection(db, "posts", postId, "comments")
+      const q = query(
+        collection(db, "posts", postId, "comments"),
+        orderBy("date", "desc")
       );
+      const snapshot = await getDocs(q);
       const snapshotComments = [];
       snapshot.forEach((doc) =>
         snapshotComments.push({ ...doc.data(), id: doc.id })
@@ -66,7 +71,14 @@ const CommentsScreen = ({ navigation, route }) => {
         login: login,
         avatarUrl: avatarUrl,
         timeStamp: timeStamp,
+        date: serverTimestamp(),
       });
+      // const updateTimestamp = await updateDoc(
+      //   collection(db, "posts", postId, "comments"),
+      //   {
+      //     timestampServer: serverTimestamp(),
+      //   }
+      // );
       await updateDoc(doc(db, "posts", postId), {
         totalComments: increment(1),
       });
