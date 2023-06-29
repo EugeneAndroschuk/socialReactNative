@@ -77,7 +77,7 @@ const ProfileScreen = ({ navigation }) => {
       dispatch(updateAvatar({ avatarUrl : null}));
       return;
     }
-    console.log("pressed add avatar");
+    
     onLoadUserAvatar().then(res => setUserAvatar(res))
   }
 

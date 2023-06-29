@@ -7,16 +7,13 @@ import {
 } from "react-native";
 import { useState, useEffect } from "react";
 import MapView, { Marker } from "react-native-maps";
-// import * as Location from "expo-location";
 import SvgArrowLeft from "../assets/images/Svg/SvgArrowLeft";
 
 const MapScreen = ({ navigation, route }) => {
-    // const [formData, setFormData] = useState({});
     const [location, setLocation] = useState(null);
 
     useEffect(() => {
       if (route.params) setLocation(route.params.coords);
-      console.log(route.params.coords);
     }, [route.params]);
 
   return (
@@ -33,14 +30,14 @@ const MapScreen = ({ navigation, route }) => {
 
       <View
         style={{
-          ...styles.photo,
-          height: Dimensions.get("window").height - 100,
+          ...styles.mapContainer,
+          height: Dimensions.get("window").height - 130,
         }}
       >
         <MapView
           style={{
             width: Dimensions.get("window").width - 32,
-            height: Dimensions.get("window").height - 200,
+            height: Dimensions.get("window").height - 130,
           }}
           region={{
             ...location,
@@ -93,22 +90,14 @@ const styles = StyleSheet.create({
     left: 16,
   },
 
-  photo: {
-    height: 240,
+  mapContainer: {
     backgroundColor: "#F6F6F6",
     borderWidth: 1,
     borderStyle: "solid",
     borderColor: "#E8E8E8",
     borderRadius: 8,
-    marginBottom: 8,
-    justifyContent: "center",
-    alignItems: "center",
     marginHorizontal: 16,
     marginTop: 32,
-  },
-
-  mapStyle: {
-    width: Dimensions.get("window").width - 32,
-    height: Dimensions.get("window").height - 200,
+    overflow: "hidden",
   },
 });

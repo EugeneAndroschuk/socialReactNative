@@ -39,7 +39,7 @@ const CommentsScreen = ({ navigation, route }) => {
   const photoUrl = route.params.url;
   const avatarUrl = useSelector(getAvatarUrl);
   const DEFAULT_AVATAR_URL =
-    "https://firebasestorage.googleapis.com/v0/b/social-41e1f.appspot.com/o/postImage%2Favatar-1x.jpg?alt=media&token=1cfa9a3a-d191-4d1a-a65b-eb016016cdcc";
+    "https://firebasestorage.googleapis.com/v0/b/social-rn-25894.appspot.com/o/userAvatar%2Favatar-1x.jpg?alt=media&token=33020311-3b34-4b46-ba27-3a72f9d6f6ef";
 
   const getCommentsFromFirestore = async () => {
     try {

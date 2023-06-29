@@ -51,7 +51,7 @@ const CreatePostsScreen = ({ navigation }) => {
           likes: [],
           userId,
         });
-        console.log("Document written with ID: ", docRef.id);
+        
       } catch (e) {
         console.error("Error adding document: ", e);
         throw e;
@@ -112,7 +112,6 @@ const CreatePostsScreen = ({ navigation }) => {
 
     //downloading photo
     await getDownloadURL(ref(storage, `postImage/${uniquePostId}`)).then((url) => {
-      console.log("Downloaded file with URL", url);
       setPhotoUrl(url);
     });
   };
